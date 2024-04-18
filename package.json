@@ -1,17 +1,17 @@
 {
-	"name": "pkg-placeholder",
+	"name": "valchecker",
 	"type": "module",
 	"version": "0.0.0",
 	"packageManager": "pnpm@8.15.7",
-	"description": "_description_",
+	"description": "A JS / TS value checker.",
 	"author": "DevilTea <ch870814@gmail.com>",
 	"license": "MIT",
-	"homepage": "https://github.com/DevilTea/repo-placeholder#readme",
+	"homepage": "https://github.com/DevilTea/valchecker#readme",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/DevilTea/repo-placeholder.git"
+		"url": "git+https://github.com/DevilTea/valchecker.git"
 	},
-	"bugs": "https://github.com/DevilTea/repo-placeholder/issues",
+	"bugs": "https://github.com/DevilTea/valchecker/issues",
 	"keywords": [],
 	"sideEffects": false,
 	"exports": {
