@@ -1,0 +1,82 @@
+{
+	"name": "pkg-placeholder",
+	"type": "module",
+	"version": "0.0.0",
+	"packageManager": "pnpm@8.15.7",
+	"description": "_description_",
+	"author": "DevilTea <ch870814@gmail.com>",
+	"license": "MIT",
+	"homepage": "https://github.com/DevilTea/repo-placeholder#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/DevilTea/repo-placeholder.git"
+	},
+	"bugs": "https://github.com/DevilTea/repo-placeholder/issues",
+	"keywords": [],
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": {
+				"import": "./dist/index.d.mts",
+				"require": "./dist/index.d.cts",
+				"default": "./dist/index.d.ts"
+			},
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./dist/index.d.ts"
+			]
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "unbuild",
+		"dev": "unbuild --stub",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"prepublishOnly": "nr build",
+		"release": "bumpp && npm publish",
+		"start": "esno src/index.ts",
+		"test": "vitest",
+		"test:cov": "vitest --coverage",
+		"typecheck": "tsc --noEmit --project tsconfig.test.json",
+		"prepare": "simple-git-hooks"
+	},
+	"devDependencies": {
+		"@antfu/ni": "0.21.12",
+		"@deviltea/eslint-config": "3.2.0",
+		"@deviltea/tsconfig": "0.0.6",
+		"@types/node": "20.12.7",
+		"@vitest/coverage-v8": "1.5.0",
+		"bumpp": "9.4.0",
+		"eslint": "8.57.0",
+		"esno": "4.0.0",
+		"lint-staged": "15.2.2",
+		"pnpm": "8.15.7",
+		"rimraf": "5.0.5",
+		"simple-git-hooks": "2.11.1",
+		"typescript": "5.4.5",
+		"unbuild": "2.0.0",
+		"vite": "5.2.8",
+		"vitest": "1.5.0"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "pnpm lint-staged"
+	},
+	"lint-staged": {
+		"*": "eslint --fix"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
