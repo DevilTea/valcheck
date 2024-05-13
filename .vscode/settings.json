@@ -1,4 +1,7 @@
 {
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.indentSize": "tabSize",
 	// Enable the ESlint flat config support
 	"eslint.experimental.useFlatConfig": true,
 

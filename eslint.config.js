@@ -10,6 +10,15 @@ export default deviltea(
 	{
 		rules: {
 			// overrides
+			'ts/ban-types': [
+				'error',
+				{
+					types: {
+						'Function': false,
+						'{}': false,
+					},
+				},
+			],
 		},
 	},
 )
