@@ -6,21 +6,21 @@ import { type OptimizeMaterial, optimizeMaterial } from './optimizeMaterial'
 export type RawIntersectionSchemaMaterial = (Primitive | AnyValSchema)[]
 type IntersectionSchemaMaterial = AnyValSchema[]
 
-type _IntersectionSchemaOutput_ToTupleUnion<Material extends IntersectionSchemaMaterial> = Material[number] extends infer S
+type ToTupleUnion<Material extends IntersectionSchemaMaterial> = Material[number] extends infer S
 	? S extends AnyValSchema
 		? [OutputOf<S>]
 		: never
 	: never
 
-type _IntersectionSchemaOutput_ToIntersection<T extends [any]> = (T extends [any] ? (_: T) => any : never) extends ((i: [infer I]) => any)
+type ToIntersection<T extends [any]> = (T extends [any] ? (_: T) => any : never) extends ((i: [infer I]) => any)
 	? I
 	: never
 
-type IntersectionSchemaOutput<Material extends IntersectionSchemaMaterial> = _IntersectionSchemaOutput_ToIntersection<_IntersectionSchemaOutput_ToTupleUnion<Material>>
+type IntersectionSchemaOutput<Material extends IntersectionSchemaMaterial> = ToIntersection<ToTupleUnion<Material>>
 
 type IntersectionSchemaPath<Material extends IntersectionSchemaMaterial> = IndexOf<Material> extends infer Index
 	? Index extends number
-		? [Index, ...SchemaPathOf<Material[Index]>]
+		? [`<${Index}>`, ...SchemaPathOf<Material[Index]>]
 		: never
 	: never
 

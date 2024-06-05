@@ -9,7 +9,6 @@ export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMa
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: NumberSchemaOutput<Material>
 }> {

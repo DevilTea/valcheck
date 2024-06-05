@@ -5,7 +5,6 @@ export class NullSchema extends BaseValSchema({
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: null
-	SchemaPath: []
 	Input: any
 	Output: null
 }> {

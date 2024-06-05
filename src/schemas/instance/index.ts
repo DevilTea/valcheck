@@ -9,7 +9,6 @@ export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSc
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: InstanceSchemaOutput<Material>
 }> {

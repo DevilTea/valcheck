@@ -9,7 +9,6 @@ export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMa
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: SymbolSchemaOutput<Material>
 }> {

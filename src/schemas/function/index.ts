@@ -5,7 +5,6 @@ export class FunctionSchema<Fn extends Function = Function> extends BaseValSchem
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: null
-	SchemaPath: []
 	Input: any
 	Output: Fn
 }> {

@@ -19,7 +19,7 @@ export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSc
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_ARRAY_ITEM'],
 })<{
 	Material: Material
-	SchemaPath: [] | ArraySchemaPath<Material>
+	SchemaPath: ArraySchemaPath<Material>
 	Input: any
 	Output: ArraySchemaOutput<Material>
 }> {

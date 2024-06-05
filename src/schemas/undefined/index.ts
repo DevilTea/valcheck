@@ -5,7 +5,6 @@ export class UndefinedSchema extends BaseValSchema({
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: null
-	SchemaPath: []
 	Input: any
 	Output: undefined
 }> {

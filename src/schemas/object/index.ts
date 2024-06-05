@@ -18,7 +18,7 @@ export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMa
 	Issues: ['UNEXPECTED_INPUT', 'MISSING_OBJECT_KEY', 'UNEXPECTED_OBJECT_VALUE'],
 })<{
 	Material: Material
-	SchemaPath: [] | ObjectSchemaPath<Material>
+	SchemaPath: ObjectSchemaPath<Material>
 	Input: any
 	Output: ObjectSchemaOutput<Material>
 }> {

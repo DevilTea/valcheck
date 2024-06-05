@@ -14,7 +14,7 @@ type UnionSchemaOutput<Material extends UnionSchemaMaterial> = Material[number] 
 
 type UnionSchemaPath<Material extends UnionSchemaMaterial> = IndexOf<Material> extends infer Index
 	? Index extends number
-		? [Index, ...SchemaPathOf<Material[Index]>]
+		? [`<${Index}>`, ...SchemaPathOf<Material[Index]>]
 		: never
 	: never
 

@@ -88,18 +88,18 @@ function shouldNeverBeCalled<T>(): T {
 abstract class _BaseValSchema<
 	Params extends {
 		Name: string
-		Issues: string[]
+		Issues: string[] | undefined
 		Material: any
 		Input: any
 		Output: any
-		SchemaPath: (string | number | symbol)[]
+		SchemaPath: (string | number | symbol)[] | undefined
 	},
 	Name extends string = Params['Name'],
-	Issues extends string[] = Params['Issues'],
+	Issues extends string[] = Params['Issues'] extends string[] ? Params['Issues'] : [],
 	Material = Params['Material'],
 	Input = Params['Input'],
 	Output = Params['Output'],
-	SchemaPath extends ValSchemaPath = Params['SchemaPath'],
+	SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? ([] | Params['SchemaPath']) : [],
 > {
 	abstract _name: Name
 	abstract _issues: Issues
@@ -114,10 +114,12 @@ abstract class _BaseValSchema<
 		_output: Output
 	}>
 
-	_execute: ExecuteFnImpl<any> = shouldNeverBeCalled
-
 	constructor(material: Material) {
 		this._material = material
+	}
+
+	_execute(_payload: ProvidedExecuteFnPayload<any>): ValidationResult<OutputOf<any>> {
+		throw new Error('Not implemented')
 	}
 
 	execute(input: Input, context?: ExecutionContext) {
@@ -146,28 +148,24 @@ abstract class _BaseValSchema<
 	}
 }
 
-export function BaseValSchema<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues: [...Issues] }) {
+export function BaseValSchema<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
 	abstract class BaseValSchema<
 		Params extends {
 			Material: any
 			Input: any
 			Output: any
-			SchemaPath: (string | number | symbol)[]
+			SchemaPath?: (string | number | symbol)[]
 		},
-		Material = Params['Material'],
-		Input = Params['Input'],
-		Output = Params['Output'],
-		SchemaPath extends ValSchemaPath = Params['SchemaPath'],
 	> extends _BaseValSchema<{
 		Name: Name
 		Issues: Issues
-		Material: Material
-		Input: Input
-		Output: Output
-		SchemaPath: SchemaPath
+		Material: Params['Material']
+		Input: Params['Input']
+		Output: Params['Output']
+		SchemaPath: Params['SchemaPath']
 	}> {
 		_name = name
-		_issues = issues
+		_issues = issues || [] as any
 	}
 
 	return BaseValSchema

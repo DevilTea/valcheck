@@ -2,10 +2,8 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class AnySchema extends BaseValSchema({
 	Name: 'any',
-	Issues: [],
 })<{
 	Material: null
-	SchemaPath: []
 	Input: any
 	Output: any
 }> {

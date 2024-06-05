@@ -52,7 +52,7 @@ export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMater
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_LENGTH', 'UNEXPECTED_TUPLE_ITEM'],
 })<{
 	Material: Material
-	SchemaPath: [] | TupleSchemaPath<Material>
+	SchemaPath: TupleSchemaPath<Material>
 	Input: any
 	Output: TupleSchemaOutput<Material>
 }> {

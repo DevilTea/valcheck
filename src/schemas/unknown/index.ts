@@ -2,9 +2,7 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class UnknownSchema extends BaseValSchema({
 	Name: 'unknown',
-	Issues: [],
 })<{
-	SchemaPath: []
 	Material: null
 	Input: any
 	Output: unknown

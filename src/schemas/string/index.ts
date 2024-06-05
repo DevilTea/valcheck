@@ -17,7 +17,6 @@ export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMa
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: StringSchemaOutput<Material>
 }> {

@@ -9,7 +9,6 @@ export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchem
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: BooleanSchemaOutput<Material>
 }> {

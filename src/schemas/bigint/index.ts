@@ -9,7 +9,6 @@ export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMa
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: []
 	Input: any
 	Output: BigintSchemaOutput<Material>
 }> {
