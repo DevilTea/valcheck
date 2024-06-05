@@ -1,12 +1,5 @@
 {
 	"extends": "@deviltea/tsconfig/node",
-	"compilerOptions": {
-		"paths": {
-			"@/*": [
-				"./src/*"
-			]
-		}
-	},
 	"include": [
 		"./src/**/*.ts",
 		"./test/**/*.ts"
