@@ -1,8 +1,6 @@
 import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 import { type CreateTemplateLiteralSchema, type RawTemplateLiteralMaterial, type TemplateLiteralMaterial, type TemplatePartialsToOutput, createTemplateLiteral } from './templateLiteral'
 
-export type { TemplateLiteralMaterial } from './templateLiteral'
-
 type StringSchemaMaterial = null | string | TemplateLiteralMaterial
 type StringSchemaOutput<Material extends StringSchemaMaterial> = Material extends null
 	? string
@@ -49,10 +47,16 @@ implementExecuteFn(
 	},
 )
 
+export function isStringSchema(schema: any): schema is StringSchema {
+	return schema instanceof StringSchema
+}
+
+export type { CreateTemplateLiteralSchema } from './templateLiteral'
+
 export function string(): StringSchema<null>
 export function string<Material extends string>(material: Material): StringSchema<Material>
 export function string<RawMaterial extends RawTemplateLiteralMaterial>(...material: [...RawMaterial]): CreateTemplateLiteralSchema<RawMaterial>
-export function string(...args: [] | [null] | [string] | RawTemplateLiteralMaterial) {
+export function string(...args: [] | [string] | RawTemplateLiteralMaterial) {
 	if (args.length === 0)
 		return new StringSchema(null)
 
@@ -60,8 +64,4 @@ export function string(...args: [] | [null] | [string] | RawTemplateLiteralMater
 		return new StringSchema(args[0])
 
 	return createTemplateLiteral(args as RawTemplateLiteralMaterial)
-}
-
-export function isStringSchema(schema: any): schema is StringSchema {
-	return schema instanceof StringSchema
 }

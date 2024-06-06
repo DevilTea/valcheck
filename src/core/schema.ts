@@ -88,21 +88,21 @@ function shouldNeverBeCalled<T>(): T {
 abstract class _BaseValSchema<
 	Params extends {
 		Name: string
-		Issues: string[] | undefined
+		Issues: string[]
 		Material: any
 		Input: any
 		Output: any
-		SchemaPath: (string | number | symbol)[] | undefined
+		SchemaPath: (string | number | symbol)[]
 	},
 	Name extends string = Params['Name'],
-	Issues extends string[] = Params['Issues'] extends string[] ? Params['Issues'] : [],
+	Issues extends string[] = Params['Issues'],
 	Material = Params['Material'],
 	Input = Params['Input'],
 	Output = Params['Output'],
-	SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? ([] | Params['SchemaPath']) : [],
+	SchemaPath extends ValSchemaPath = Params['SchemaPath'],
 > {
 	abstract _name: Name
-	abstract _issues: Issues
+	abstract _issues: Issues | []
 	_material: Material
 
 	/**
@@ -132,9 +132,9 @@ abstract class _BaseValSchema<
 			pass,
 			fail: (...args: [] | [issue: string, value: any]) => args.length === 0
 				? fail()
-				: fail(args[0], args[1], this as any, _context),
+				: fail(args[0], args[1], this, _context),
 		}
-		return this._execute(payload as any)
+		return this._execute(payload)
 	}
 
 	parse(input: Input) {
@@ -148,23 +148,26 @@ abstract class _BaseValSchema<
 	}
 }
 
-export function BaseValSchema<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
+export function BaseValSchema<Name extends string, Issues extends string[] = []>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
 	abstract class BaseValSchema<
 		Params extends {
 			Input: any
 			Output: any
-			SchemaPath?: (string | number | symbol)[]
+			SchemaPath?: ValSchemaPath
 		},
+		Input = Params['Input'],
+		Output = Params['Output'],
+		SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? (Params['SchemaPath'] | []) : [],
 	> extends _BaseValSchema<{
 		Name: Name
 		Issues: Issues
 		Material: null
-		Input: Params['Input']
-		Output: Params['Output']
-		SchemaPath: Params['SchemaPath']
+		Input: Input
+		Output: Output
+		SchemaPath: SchemaPath | []
 	}> {
 		_name = name
-		_issues = issues || [] as any
+		_issues = issues || []
 
 		constructor() {
 			super(null)
@@ -180,18 +183,22 @@ export function BaseValSchemaWithMaterial<Name extends string, Issues extends st
 			Material: any
 			Input: any
 			Output: any
-			SchemaPath?: (string | number | symbol)[]
+			SchemaPath?: ValSchemaPath
 		},
+		Material = Params['Material'],
+		Input = Params['Input'],
+		Output = Params['Output'],
+		SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? (Params['SchemaPath'] | []) : [],
 	> extends _BaseValSchema<{
 		Name: Name
 		Issues: Issues
-		Material: Params['Material']
-		Input: Params['Input']
-		Output: Params['Output']
-		SchemaPath: Params['SchemaPath']
+		Material: Material
+		Input: Input
+		Output: Output
+		SchemaPath: SchemaPath
 	}> {
 		_name = name
-		_issues = issues || [] as any
+		_issues = issues || []
 	}
 
 	return BaseValSchema

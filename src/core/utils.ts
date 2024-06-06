@@ -6,6 +6,8 @@ import { type NumberSchema, number } from '../schemas/number'
 import { type StringSchema, string } from '../schemas/string'
 import type { AnyValSchema } from './schema'
 
+export type As<T, Input> = Input extends T ? Input : never
+
 export type IsEqual<T, U> = (<G>() => G extends T ? 1 : 2) extends (<G>() => G extends U ? 1 : 2) ? true : false
 
 export type IsInclude<List extends any[], Item> = List extends [infer ListItem, ...infer Rest extends any[]]

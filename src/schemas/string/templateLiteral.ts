@@ -1,25 +1,32 @@
 import type { OutputOf,
 } from '../../core/schema'
-import { type PrimitiveValueToSchema, toPrimitiveSchema } from '../../core/utils'
+import { type As, isPrimitive } from '../../core/utils'
 import { type BigintSchema, isBigintSchema } from '../bigint'
 import { type BooleanSchema, isBooleanSchema } from '../boolean'
 import { type NumberSchema, isNumberSchema } from '../number'
 import { type CreateUnionSchema, type UnionSchema, isUnionSchema, union } from '../union'
+import { type NullSchema, isNullSchema } from '../null'
+import { type UndefinedSchema, isUndefinedSchema } from '../undefined'
 import { StringSchema, isStringSchema, string } from '.'
 
-type RawTemplatePartial = StringSchema | NumberSchema | BigintSchema | BooleanSchema | UnionSchema<RawTemplatePartial[]>
-type RawTemplateLiteralMaterialItem = string | number | bigint | boolean | RawTemplatePartial
-
+type RawTemplateLiteralMaterialItem = string | number | bigint | boolean | null | undefined
+	| StringSchema | NumberSchema | BigintSchema | BooleanSchema | NullSchema | UndefinedSchema
+	| UnionSchema<(StringSchema | NumberSchema | BigintSchema | BooleanSchema | NullSchema | UndefinedSchema)[]>
 export type RawTemplateLiteralMaterial = RawTemplateLiteralMaterialItem[]
 
-type RawTemplateLiteralMaterialToRawPartials<Material extends RawTemplateLiteralMaterial> = Material extends [infer Item, ...infer Rest extends RawTemplateLiteralMaterial]
-	? Item extends string | number | bigint | boolean
-		? [PrimitiveValueToSchema<Item>, ...RawTemplateLiteralMaterialToRawPartials<Rest>]
-		: [Item, ...RawTemplateLiteralMaterialToRawPartials<Rest>]
+type RawTemplatePartial = StringSchema<null | string> | NumberSchema<null> | BigintSchema<null> | BooleanSchema<null>
+	| UnionSchema<(StringSchema<null | string> | NumberSchema<null> | BigintSchema<null> | BooleanSchema<null>)[]>
+type _RawTemplateLiteralMaterialToRawPartials<Material extends RawTemplateLiteralMaterial> = Material extends [infer Item, ...infer Rest extends RawTemplateLiteralMaterial]
+	? [Item] extends [string | number | bigint | boolean | null | undefined]
+			? [StringSchema<`${Item}`>, ..._RawTemplateLiteralMaterialToRawPartials<Rest>]
+			: [Item] extends [StringSchema<string> | NumberSchema<number> | BigintSchema<bigint> | BooleanSchema<boolean> | NullSchema | UndefinedSchema]
+					? [StringSchema<`${OutputOf<Item>}`>, ..._RawTemplateLiteralMaterialToRawPartials<Rest>]
+					: [Item, ..._RawTemplateLiteralMaterialToRawPartials<Rest>]
 	: []
+type RawTemplateLiteralMaterialToRawPartials<Material extends RawTemplateLiteralMaterial> = As<RawTemplatePartial[], _RawTemplateLiteralMaterialToRawPartials<Material>>
 
 // Resolve Partials to Paths
-type ResolvedPartial = StringSchema<null | string> | NumberSchema | BigintSchema | BooleanSchema
+type ResolvedPartial = StringSchema<null | string> | NumberSchema<null> | BigintSchema<null> | BooleanSchema<null>
 type ResolvedPath = ResolvedPartial[]
 type AppendPaths<Paths extends ResolvedPath[], Item extends ResolvedPath[number]> = Paths extends [infer Path extends ResolvedPath, ...infer Rest extends ResolvedPath[]]
 	? [[...Path, Item], ...AppendPaths<Rest, Item>]
@@ -72,14 +79,14 @@ function resolvePartials(rawPartials: RawTemplatePartial[]): ResolvedPath[] {
 		}
 
 		if (
-			(isStringSchema(partial) && (partial.isUnspecific() || partial.isSpecific()))
+			(isStringSchema(partial))
 			|| (isNumberSchema(partial))
 			|| (isBigintSchema(partial))
-			|| (isBooleanSchema(partial) && partial.isSpecific())
 		) {
 			result.forEach(path => path.push(partial))
 			return
 		}
+
 		if (isUnionSchema(partial)) {
 			const newResult: ResolvedPath[] = []
 			result.forEach((path) => {
@@ -107,10 +114,10 @@ type OptimizePath<Path extends ResolvedPath, ResultPath extends OptimizedPath = 
 		Rest,
 		Item extends StringSchema<null> | NumberSchema<null> | BooleanSchema<null> | BigintSchema<null>
 			? [...ResultPath, Item]
-			: Item extends StringSchema<string> | NumberSchema<number> | BooleanSchema<boolean> | BigintSchema<bigint>
+			: Item extends StringSchema<string>
 				? ResultPath extends [...infer Rest extends OptimizedPath, infer Last extends StringSchema<string>]
 					? [...Rest, StringSchema<`${Last['_material']}${Item['_material']}`>]
-					: [...ResultPath, StringSchema<`${Item['_material']}`>]
+					: [...ResultPath, Item]
 				: never
 	>
 	: { partials: ResultPath, regexp: RegExp }
@@ -152,8 +159,10 @@ function optimizePaths(resolvedPaths: ResolvedPath[]) {
 				continue
 			}
 
-			if (partial.isSpecific() === false)
-				throw new Error('Unexpected partial')
+			if (partial.isSpecific() === false) {
+				// Skip unspecific partials, should not happen
+				continue
+			}
 
 			const str = partial._material.toString()
 
@@ -206,25 +215,35 @@ export type CreateTemplateLiteralSchema<Material extends RawTemplateLiteralMater
 >
 export function createTemplateLiteral(material: RawTemplateLiteralMaterial) {
 	const rawPartials = material.map((item) => {
-		switch (typeof item) {
-			case 'string':
-			case 'number':
-			case 'bigint':
-			case 'boolean':
-				return toPrimitiveSchema(item)
-			default:
-				return item
-		}
-	})
+		if (isPrimitive(item))
+			return string(`${item}`)
+
+		if (
+			(isNumberSchema(item) && item.isSpecific())
+			|| (isBigintSchema(item) && item.isSpecific())
+			|| (isBooleanSchema(item) && item.isSpecific())
+		)
+			return string(`${item._material}`)
+
+		if (isNullSchema(item))
+			return string('null')
+
+		if (isUndefinedSchema(item))
+			return string('undefined')
+
+		return item
+	}) as RawTemplatePartial[]
+
 	const resolvedPaths = resolvePartials(rawPartials)
+
 	const optimizedResults = optimizePaths(resolvedPaths)
 
 	if (optimizedResults.length === 0)
-		return new StringSchema(null)
+		return string(null)
 
 	const schemas = optimizedResults.map((result) => {
 		if (result.partials.length === 0)
-			return new StringSchema(null)
+			return string(null)
 
 		if (result.partials.length === 1 && isStringSchema(result.partials[0]))
 			return result.partials[0]!
@@ -235,7 +254,7 @@ export function createTemplateLiteral(material: RawTemplateLiteralMaterial) {
 	if (schemas.length === 1)
 		return schemas[0]!
 
-	return union(schemas)
+	return union(...schemas)
 }
 
 export type TemplateLiteralMaterial = OptimizedResult

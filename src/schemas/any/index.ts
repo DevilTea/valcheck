@@ -12,10 +12,10 @@ implementExecuteFn(
 	({ input, pass }) => pass(input),
 )
 
-export function any() {
-	return new AnySchema()
-}
-
 export function isAnySchema(schema: any): schema is AnySchema {
 	return schema instanceof AnySchema
+}
+
+export function any() {
+	return new AnySchema()
 }

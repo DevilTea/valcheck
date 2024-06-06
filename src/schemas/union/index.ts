@@ -52,6 +52,10 @@ implementExecuteFn(
 	},
 )
 
+export function isUnionSchema(schema: any): schema is UnionSchema {
+	return schema instanceof UnionSchema
+}
+
 export type CreateUnionSchema<
 	RawMaterial extends RawUnionSchemaMaterial,
 	OptimizedMaterial extends UnionSchemaMaterial = OptimizeMaterial<RawMaterial>,
@@ -61,8 +65,8 @@ export type CreateUnionSchema<
 		? OptimizedMaterial[0]
 		: UnionSchema<OptimizedMaterial>
 
-export function union<RawMaterial extends RawUnionSchemaMaterial>(material: [...RawMaterial]): CreateUnionSchema<RawMaterial>
-export function union(material: RawUnionSchemaMaterial): any {
+export function union<RawMaterial extends RawUnionSchemaMaterial>(...material: [...RawMaterial]): CreateUnionSchema<RawMaterial>
+export function union(...material: RawUnionSchemaMaterial): AnyValSchema {
 	const optimized = optimizeMaterial(material)
 	if (optimized.length === 0)
 		return never()
@@ -71,8 +75,4 @@ export function union(material: RawUnionSchemaMaterial): any {
 		return optimized[0]!
 
 	return new UnionSchema(optimized)
-}
-
-export function isUnionSchema(schema: any): schema is UnionSchema {
-	return schema instanceof UnionSchema
 }

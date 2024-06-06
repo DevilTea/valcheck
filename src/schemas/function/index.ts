@@ -18,10 +18,10 @@ implementExecuteFn(
 	},
 )
 
-export function function_<Fn extends Function = Function>() {
-	return new FunctionSchema<Fn>()
-}
-
 export function isFunctionSchema(schema: any): schema is FunctionSchema {
 	return schema instanceof FunctionSchema
+}
+
+export function function_<Fn extends Function = Function>() {
+	return new FunctionSchema<Fn>()
 }

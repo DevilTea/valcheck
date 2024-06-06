@@ -39,12 +39,15 @@ implementExecuteFn(
 	},
 )
 
-export function number<Material extends NumberSchemaMaterial = null>(literal = null as Material) {
-	return new NumberSchema(literal)
-}
-
 export function isNumberSchema(schema: any): schema is NumberSchema {
 	return schema instanceof NumberSchema
 }
 
-number(Number.NaN)
+export function number(): NumberSchema<null>
+export function number<Material extends number>(material: Material): NumberSchema<Material>
+export function number(material?: number) {
+	if (material == null)
+		return new NumberSchema(null)
+
+	return new NumberSchema(material)
+}

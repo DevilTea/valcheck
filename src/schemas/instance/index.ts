@@ -24,10 +24,10 @@ implementExecuteFn(
 
 )
 
-export function instance<Material extends InstanceSchemaMaterial>(material: Material) {
-	return new InstanceSchema(material)
-}
-
 export function isInstanceSchema(schema: any): schema is InstanceSchema {
 	return schema instanceof InstanceSchema
+}
+
+export function instance<Material extends InstanceSchemaMaterial>(material: Material) {
+	return new InstanceSchema(material)
 }

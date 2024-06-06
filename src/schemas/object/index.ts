@@ -1,5 +1,5 @@
 import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
-import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
+import { type As, type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 
 type ObjectSchemaMaterial = Record<string | symbol, AnyValSchema>
 
@@ -57,33 +57,32 @@ implementExecuteFn(
 	},
 )
 
-type RawObjectSchemaMaterial = Record<string | symbol, Primitive | AnyValSchema>
-type ResolveObjectSchemaMaterial<
-	RawMaterial extends RawObjectSchemaMaterial,
-	Material = {
-		[K in keyof RawMaterial]: RawMaterial[K] extends Primitive
-			? PrimitiveValueToSchema<RawMaterial[K]>
-			: RawMaterial[K]
-	},
-> = Material extends ObjectSchemaMaterial
-	? Material
-	: never
-function resolveMaterial<RawMaterial extends RawObjectSchemaMaterial>(rawMaterial: RawMaterial): ResolveObjectSchemaMaterial<RawMaterial> {
-	const resolved: any = {}
-	for (const key of Reflect.ownKeys(rawMaterial)) {
-		const value = rawMaterial[key]!
-		resolved[key] = isPrimitive(value)
+export function isObjectSchema(schema: any): schema is ObjectSchema {
+	return schema instanceof ObjectSchema
+}
+
+export type RawObjectSchemaMaterial<V extends Primitive = Primitive> = Record<string | symbol, V | AnyValSchema>
+export type CreateObjectSchema<
+	RawMaterial extends RawObjectSchemaMaterial<V>,
+	Material extends ObjectSchemaMaterial = As<
+		ObjectSchemaMaterial,
+		{
+			[K in keyof RawMaterial]: RawMaterial[K] extends Primitive
+				? PrimitiveValueToSchema<RawMaterial[K]>
+				: RawMaterial[K]
+		}
+	>,
+	V extends Primitive = Primitive,
+> = ObjectSchema<Material>
+
+export function object<RawMaterial extends RawObjectSchemaMaterial<V>, V extends Primitive = Primitive>(material: RawMaterial): CreateObjectSchema<RawMaterial>
+export function object(material: RawObjectSchemaMaterial) {
+	const resolvedMaterial: ObjectSchemaMaterial = {}
+	for (const key of Reflect.ownKeys(material)) {
+		const value = material[key]!
+		resolvedMaterial[key] = isPrimitive(value)
 			? toPrimitiveSchema(value)
 			: value
 	}
-	return resolved
-}
-
-export function object<RawMaterial extends RawObjectSchemaMaterial>(material: RawMaterial) {
-	const resolvedMaterial = resolveMaterial(material) as ResolveObjectSchemaMaterial<RawMaterial>
 	return new ObjectSchema(resolvedMaterial)
-}
-
-export function isObjectSchema(schema: any): schema is ObjectSchema {
-	return schema instanceof ObjectSchema
 }

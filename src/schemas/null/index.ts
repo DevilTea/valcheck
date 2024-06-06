@@ -18,10 +18,10 @@ implementExecuteFn(
 	},
 )
 
-export function null_() {
-	return new NullSchema()
-}
-
 export function isNullSchema(schema: any): schema is NullSchema {
 	return schema instanceof NullSchema
+}
+
+export function null_() {
+	return new NullSchema()
 }

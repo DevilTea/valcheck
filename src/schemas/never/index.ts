@@ -15,10 +15,10 @@ implementExecuteFn(
 	},
 )
 
-export function never() {
-	return new NeverSchema()
-}
-
 export function isNeverSchema(schema: any): schema is NeverSchema {
 	return schema instanceof NeverSchema
+}
+
+export function never() {
+	return new NeverSchema()
 }

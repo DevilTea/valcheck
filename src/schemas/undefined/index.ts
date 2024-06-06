@@ -18,10 +18,10 @@ implementExecuteFn(
 	},
 )
 
-export function undefined_() {
-	return new UndefinedSchema()
-}
-
 export function isUndefinedSchema(schema: any): schema is UndefinedSchema {
 	return schema instanceof UndefinedSchema
+}
+
+export function undefined_() {
+	return new UndefinedSchema()
 }

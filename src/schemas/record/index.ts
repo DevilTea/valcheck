@@ -1,18 +1,18 @@
 import { type AnyValSchema, BaseValSchemaWithMaterial, type MaterialOf, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
+import type { AnySchema } from '../any'
+import type { NeverSchema } from '../never'
 import { type NumberSchema, isNumberSchema } from '../number'
 import { type StringSchema, isStringSchema, string } from '../string'
 import type { CreateTemplateLiteralSchema } from '../string/templateLiteral'
 import { type SymbolSchema, isSymbolSchema, symbol } from '../symbol'
 import { type CreateUnionSchema, type UnionSchema, isUnionSchema, union } from '../union'
+import type { UnknownSchema } from '../unknown'
 
 const KEY_PATH = '<key>'
 const VALUE_PATH = '<value>'
 
-type RawRecordSchemaMaterialOfKey = string | number | symbol | StringSchema | NumberSchema | SymbolSchema | UnionSchema<(StringSchema | NumberSchema | SymbolSchema)[]>
-type RawRecordSchemaMaterial = [key: RawRecordSchemaMaterialOfKey, value: Primitive | AnyValSchema]
-
-type RecordSchemaMaterialOfKey = StringSchema | SymbolSchema | UnionSchema<(StringSchema | SymbolSchema)[]>
+type RecordSchemaMaterialOfKey = AnySchema | UnknownSchema | NeverSchema | StringSchema | SymbolSchema | UnionSchema<(StringSchema | SymbolSchema)[]>
 export type RecordSchemaMaterial = [key: RecordSchemaMaterialOfKey, value: AnyValSchema]
 export type RecordSchemaOutput<Material extends RecordSchemaMaterial> = Record<OutputOf<Material[0]>, OutputOf<Material[1]>>
 export type RecordSchemaPath<Material extends RecordSchemaMaterial> = [] | [typeof KEY_PATH, ...SchemaPathOf<Material[0]>] | [typeof VALUE_PATH, ...SchemaPathOf<Material[1]>]
@@ -131,7 +131,7 @@ function resolveRawRecordSchemaMaterial(rawMaterial: RawRecordSchemaMaterial): R
 
 	if (isUnionSchema(rawKey)) {
 		return [
-			union(rawKey._material.map(schema => isNumberSchema(schema) ? string(schema) : schema)) as any,
+			union(...rawKey._material.map(schema => isNumberSchema(schema) ? string(schema) : schema)),
 			value,
 		]
 	}
@@ -139,10 +139,23 @@ function resolveRawRecordSchemaMaterial(rawMaterial: RawRecordSchemaMaterial): R
 	return [rawKey, value]
 }
 
+type RawRecordSchemaMaterialOfKey<K extends string | number | symbol = string | number | symbol> = K | AnySchema | UnknownSchema | NeverSchema | StringSchema | NumberSchema | SymbolSchema | UnionSchema<(StringSchema | NumberSchema | SymbolSchema)[]>
+export type RawRecordSchemaMaterial<
+	K extends string | number | symbol = string | number | symbol,
+	V extends Primitive = Primitive,
+> = [key: RawRecordSchemaMaterialOfKey<K>, value: V | AnyValSchema]
+export type CreateRecordSchema<
+	RawMaterial extends RawRecordSchemaMaterial<K, V>,
+	K extends string | number | symbol = string | number | symbol,
+	V extends Primitive = Primitive,
+> = RecordSchema<ResolveRawRecordSchemaMaterial<RawMaterial>>
+
 export function record<
-	RawMaterial extends RawRecordSchemaMaterial,
-	Material extends RecordSchemaMaterial = ResolveRawRecordSchemaMaterial<RawMaterial>,
->(rawMaterial: RawMaterial): RecordSchema<Material> {
+	RawMaterial extends RawRecordSchemaMaterial<K, V>,
+	K extends string | number | symbol = string | number | symbol,
+	V extends Primitive = Primitive,
+>(rawMaterial: RawMaterial): CreateRecordSchema<RawMaterial>
+export function record(rawMaterial: RawRecordSchemaMaterial) {
 	const material = resolveRawRecordSchemaMaterial(rawMaterial)
-	return new RecordSchema(material) as any
+	return new RecordSchema(material)
 }

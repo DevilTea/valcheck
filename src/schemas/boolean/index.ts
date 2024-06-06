@@ -34,10 +34,15 @@ implementExecuteFn(
 	},
 )
 
-export function boolean<Material extends BooleanSchemaMaterial = null>(literal = null as Material) {
-	return new BooleanSchema(literal)
-}
-
 export function isBooleanSchema(schema: any): schema is BooleanSchema {
 	return schema instanceof BooleanSchema
+}
+
+export function boolean(): BooleanSchema<null>
+export function boolean<Material extends boolean>(material: Material): BooleanSchema<Material>
+export function boolean(material?: boolean) {
+	if (material == null)
+		return new BooleanSchema(null)
+
+	return new BooleanSchema(material)
 }

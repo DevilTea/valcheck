@@ -1,4 +1,4 @@
-import { type ConvertPrimitives, type IsEmptyList, type IsExclude, type IsNotEmptyList, type PickByIndex, convertPrimitives } from '../../core/utils'
+import { type ConvertPrimitives, type IsEmptyList, type IsExclude, type IsNotEmptyList, type PickByIndex, type Primitive, convertPrimitives } from '../../core/utils'
 import type { AnyValSchema, MaterialOf, OutputOf } from '../../core/schema'
 import { type AnySchema, isAnySchema } from '../any'
 import { type BigintSchema, isBigintSchema } from '../bigint'
@@ -6,13 +6,14 @@ import { type BooleanSchema, isBooleanSchema } from '../boolean'
 import { type NeverSchema, isNeverSchema, never } from '../never'
 import { type NullSchema, isNullSchema } from '../null'
 import { type NumberSchema, isNumberSchema } from '../number'
-import { type StringSchema, type TemplateLiteralMaterial, isStringSchema } from '../string'
+import { type StringSchema, isStringSchema } from '../string'
+import type { TemplateLiteralMaterial } from '../string/templateLiteral'
 import { type SymbolSchema, isSymbolSchema } from '../symbol'
 import { type UndefinedSchema, isUndefinedSchema } from '../undefined'
 import { type CreateUnionSchema, type UnionSchema, isUnionSchema, union } from '../union'
 import type { OptimizeMaterial as OptimizeUnionMaterial } from '../union/optimizeMaterial'
 import { type UnknownSchema, isUnknownSchema } from '../unknown'
-import { type IntersectionSchema, type RawIntersectionSchemaMaterial, intersection, isIntersectionSchema } from '.'
+import { type IntersectionSchema, intersection, isIntersectionSchema } from '.'
 
 interface GroupedMaterial {
 	unions: UnionSchema[]
@@ -340,7 +341,7 @@ function intersectWithUnionItems(item: AnyValSchema, unionItems: AnyValSchema[])
 
 	for (const unionItem of unionItems) {
 		const optimized = optimize(flattenMaterial([item, unionItem]))
-		result.push(optimized.length === 1 ? optimized[0]! : intersection(optimized))
+		result.push(optimized.length === 1 ? optimized[0]! : intersection(...optimized))
 	}
 
 	return result
@@ -383,6 +384,8 @@ function mergeUnions(unions: UnionSchema[]) {
 	return result
 }
 
+export type RawIntersectionSchemaMaterial = (Primitive | AnyValSchema)[]
+
 export type OptimizeMaterial<
 	RawMaterial extends RawIntersectionSchemaMaterial,
 	Material extends AnyValSchema[] = ConvertPrimitives<RawMaterial>,
@@ -407,8 +410,8 @@ export function optimizeMaterial(rawMaterial: RawIntersectionSchemaMaterial) {
 	if (grouped.unions.length === 0)
 		return optimizedOthers
 
-	return [union(intersectWithUnionItems(
-		intersection(optimizedOthers),
+	return [union(...intersectWithUnionItems(
+		intersection(...optimizedOthers),
 		mergeUnions(grouped.unions),
 	))]
 }

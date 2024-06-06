@@ -34,10 +34,15 @@ implementExecuteFn(
 	},
 )
 
-export function symbol<Material extends SymbolSchemaMaterial = null>(unique = null as Material) {
-	return new SymbolSchema(unique)
-}
-
 export function isSymbolSchema(schema: any): schema is SymbolSchema {
 	return schema instanceof SymbolSchema
+}
+
+export function symbol(): SymbolSchema<null>
+export function symbol<Material extends symbol>(material: Material): SymbolSchema<Material>
+export function symbol(material?: symbol) {
+	if (material == null)
+		return new SymbolSchema(null)
+
+	return new SymbolSchema(material)
 }

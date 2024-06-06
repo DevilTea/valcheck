@@ -1,6 +1,3 @@
-/**
- * 目前僅處理 Primitives, Any, Unknown, Never 的情況最佳化
- */
 import type { AnyValSchema, MaterialOf, OutputOf } from '../../core/schema'
 import { type ConvertPrimitives, type IsEmptyList, type IsInclude, type PickByIndex, convertPrimitives } from '../../core/utils'
 import type { AnySchema } from '../any'
@@ -9,7 +6,8 @@ import { type BigintSchema, isBigintSchema } from '../bigint'
 import { type BooleanSchema, isBooleanSchema } from '../boolean'
 import { type NeverSchema, isNeverSchema } from '../never'
 import { type NumberSchema, isNumberSchema } from '../number'
-import { type StringSchema, type TemplateLiteralMaterial, isStringSchema } from '../string'
+import { type StringSchema, isStringSchema } from '../string'
+import type { TemplateLiteralMaterial } from '../string/templateLiteral'
 import { type UnknownSchema, isUnknownSchema } from '../unknown'
 import { type SymbolSchema, isSymbolSchema } from '../symbol'
 import { type NullSchema, isNullSchema } from '../null'

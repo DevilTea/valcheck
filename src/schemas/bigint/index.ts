@@ -34,10 +34,15 @@ implementExecuteFn(
 	},
 )
 
-export function bigint<Material extends BigintSchemaMaterial = null>(literal = null as Material) {
-	return new BigintSchema(literal)
-}
-
 export function isBigintSchema(schema: any): schema is BigintSchema {
 	return schema instanceof BigintSchema
+}
+
+export function bigint(): BigintSchema<null>
+export function bigint<Material extends bigint>(material: Material): BigintSchema<Material>
+export function bigint(material?: bigint) {
+	if (material == null)
+		return new BigintSchema(null)
+
+	return new BigintSchema(material)
 }

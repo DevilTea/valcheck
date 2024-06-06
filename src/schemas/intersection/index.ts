@@ -1,9 +1,8 @@
 import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
-import type { IndexOf, Primitive } from '../../core/utils'
+import type { IndexOf } from '../../core/utils'
 import { type NeverSchema, never } from '../never'
-import { type OptimizeMaterial, optimizeMaterial } from './optimizeMaterial'
+import { type OptimizeMaterial, type RawIntersectionSchemaMaterial, optimizeMaterial } from './optimizeMaterial'
 
-export type RawIntersectionSchemaMaterial = (Primitive | AnyValSchema)[]
 type IntersectionSchemaMaterial = AnyValSchema[]
 
 type ToTupleUnion<Material extends IntersectionSchemaMaterial> = Material[number] extends infer S
@@ -56,6 +55,11 @@ implementExecuteFn(
 		return pass(input)
 	},
 )
+
+export function isIntersectionSchema(schema: any): schema is IntersectionSchema {
+	return schema instanceof IntersectionSchema
+}
+
 export type CreateIntersectionSchema<
 	RawMaterial extends RawIntersectionSchemaMaterial,
 	OptimizedMaterial extends IntersectionSchemaMaterial = OptimizeMaterial<RawMaterial>,
@@ -65,8 +69,8 @@ export type CreateIntersectionSchema<
 		? OptimizedMaterial[0]
 		: IntersectionSchema<OptimizedMaterial>
 
-export function intersection<RawMaterial extends RawIntersectionSchemaMaterial>(material: [...RawMaterial]): CreateIntersectionSchema<RawMaterial>
-export function intersection(material: RawIntersectionSchemaMaterial): any {
+export function intersection<RawMaterial extends RawIntersectionSchemaMaterial>(...material: [...RawMaterial]): CreateIntersectionSchema<RawMaterial>
+export function intersection(...material: RawIntersectionSchemaMaterial) {
 	const optimized = optimizeMaterial(material)
 
 	if (optimized.length === 0)
@@ -76,8 +80,4 @@ export function intersection(material: RawIntersectionSchemaMaterial): any {
 		return optimized[0]!
 
 	return new IntersectionSchema(optimized)
-}
-
-export function isIntersectionSchema(schema: any): schema is IntersectionSchema {
-	return schema instanceof IntersectionSchema
 }
