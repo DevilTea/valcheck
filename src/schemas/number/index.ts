@@ -1,10 +1,10 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 
 type NumberSchemaMaterial = null | number
 
 type NumberSchemaOutput<Material extends NumberSchemaMaterial> = Material extends null ? number : Material
 
-export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMaterial> extends BaseValSchema({
+export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'number',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -12,10 +12,6 @@ export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMa
 	Input: any
 	Output: NumberSchemaOutput<Material>
 }> {
-	constructor(material: Material) {
-		super(material)
-	}
-
 	isUnspecific(): this is NumberSchema<null> {
 		return this._material == null
 	}

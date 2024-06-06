@@ -4,14 +4,9 @@ export class NullSchema extends BaseValSchema({
 	Name: 'null',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
-	Material: null
 	Input: any
 	Output: null
-}> {
-	constructor() {
-		super(null)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	NullSchema,

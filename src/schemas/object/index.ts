@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchema, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 
 type ObjectSchemaMaterial = Record<string | symbol, AnyValSchema>
@@ -13,7 +13,7 @@ type ObjectSchemaPath<Material extends ObjectSchemaMaterial> = (keyof Material) 
 		: never
 	: never
 
-export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMaterial> extends BaseValSchema({
+export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'object',
 	Issues: ['UNEXPECTED_INPUT', 'MISSING_OBJECT_KEY', 'UNEXPECTED_OBJECT_VALUE'],
 })<{
@@ -21,11 +21,7 @@ export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMa
 	SchemaPath: ObjectSchemaPath<Material>
 	Input: any
 	Output: ObjectSchemaOutput<Material>
-}> {
-	constructor(material: Material) {
-		super(material)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	ObjectSchema,

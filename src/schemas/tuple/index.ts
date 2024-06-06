@@ -1,4 +1,4 @@
-import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchema, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
 import { type ConvertPrimitives, type Primitive, convertPrimitives } from '../../core/utils'
 
 const REST_PATH = '<rest>'
@@ -47,7 +47,7 @@ type TupleSchemaPath<Material extends TupleSchemaMaterial> = [
 	TupleSchemaPath_Tail<Material[2]>,
 ][number]
 
-export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchema({
+export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'tuple',
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_LENGTH', 'UNEXPECTED_TUPLE_ITEM'],
 })<{
@@ -55,11 +55,7 @@ export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMater
 	SchemaPath: TupleSchemaPath<Material>
 	Input: any
 	Output: TupleSchemaOutput<Material>
-}> {
-	constructor(material: Material) {
-		super(material)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	TupleSchema,

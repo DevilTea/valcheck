@@ -3,14 +3,9 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 export class AnySchema extends BaseValSchema({
 	Name: 'any',
 })<{
-	Material: null
 	Input: any
 	Output: any
-}> {
-	constructor() {
-		super(null)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	AnySchema,

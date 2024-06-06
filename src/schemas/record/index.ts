@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchema, type MaterialOf, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type MaterialOf, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 import { type NumberSchema, isNumberSchema } from '../number'
 import { type StringSchema, isStringSchema, string } from '../string'
@@ -33,7 +33,7 @@ function collectRequiredKeys(keySchema: RecordSchemaMaterialOfKey) {
 	return new Set(_collectRequiredKeys(keySchema))
 }
 
-export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseValSchema({
+export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'record',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{

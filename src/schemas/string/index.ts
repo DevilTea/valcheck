@@ -1,4 +1,4 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 import { type CreateTemplateLiteralSchema, type RawTemplateLiteralMaterial, type TemplateLiteralMaterial, type TemplatePartialsToOutput, createTemplateLiteral } from './templateLiteral'
 
 export type { TemplateLiteralMaterial } from './templateLiteral'
@@ -12,7 +12,7 @@ type StringSchemaOutput<Material extends StringSchemaMaterial> = Material extend
 			? TemplatePartialsToOutput<Material['partials']>
 			: never
 
-export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMaterial> extends BaseValSchema({
+export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'string',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -20,10 +20,6 @@ export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMa
 	Input: any
 	Output: StringSchemaOutput<Material>
 }> {
-	constructor(material: Material) {
-		super(material)
-	}
-
 	isUnspecific(): this is StringSchema<null> {
 		return this._material == null
 	}

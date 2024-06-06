@@ -1,10 +1,10 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 
 type BigintSchemaMaterial = null | bigint
 
 type BigintSchemaOutput<Material extends BigintSchemaMaterial> = Material extends null ? bigint : Material
 
-export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMaterial> extends BaseValSchema({
+export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'bigint',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -12,10 +12,6 @@ export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMa
 	Input: any
 	Output: BigintSchemaOutput<Material>
 }> {
-	constructor(material: Material) {
-		super(material)
-	}
-
 	isUnspecific(): this is BigintSchema<null> {
 		return this._material == null
 	}

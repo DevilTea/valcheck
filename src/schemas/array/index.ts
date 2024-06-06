@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchema, type OutputOf, type SchemaPathOf, type ValSchemaPath, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, type ValSchemaPath, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 import { type AnySchema, any } from '../any'
 
@@ -14,7 +14,7 @@ type ArraySchemaPath<Material extends ArraySchemaMaterial, P extends ValSchemaPa
 		? [typeof ITEM_PATH, ...P]
 		: never
 
-export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSchema({
+export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'array',
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_ARRAY_ITEM'],
 })<{
@@ -22,11 +22,7 @@ export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSc
 	SchemaPath: ArraySchemaPath<Material>
 	Input: any
 	Output: ArraySchemaOutput<Material>
-}> {
-	constructor(material: Material) {
-		super(material)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	ArraySchema,

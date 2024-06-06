@@ -4,14 +4,9 @@ export class UndefinedSchema extends BaseValSchema({
 	Name: 'undefined',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
-	Material: null
 	Input: any
 	Output: undefined
-}> {
-	constructor() {
-		super(null)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	UndefinedSchema,

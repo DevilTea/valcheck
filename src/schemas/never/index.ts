@@ -4,14 +4,9 @@ export class NeverSchema extends BaseValSchema({
 	Name: 'never',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
-	Material: null
 	Input: any
 	Output: never
-}> {
-	constructor() {
-		super(null)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	NeverSchema,

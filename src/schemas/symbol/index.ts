@@ -1,10 +1,10 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 
 type SymbolSchemaMaterial = null | symbol
 
 type SymbolSchemaOutput<Material extends SymbolSchemaMaterial> = Material extends null ? symbol : Material
 
-export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMaterial> extends BaseValSchema({
+export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'symbol',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -12,10 +12,6 @@ export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMa
 	Input: any
 	Output: SymbolSchemaOutput<Material>
 }> {
-	constructor(material: Material) {
-		super(material)
-	}
-
 	isUnspecific(): this is SymbolSchema<null> {
 		return this._material == null
 	}

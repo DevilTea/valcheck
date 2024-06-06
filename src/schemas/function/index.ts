@@ -4,14 +4,9 @@ export class FunctionSchema<Fn extends Function = Function> extends BaseValSchem
 	Name: 'function',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
-	Material: null
 	Input: any
 	Output: Fn
-}> {
-	constructor() {
-		super(null)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	FunctionSchema,

@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchema, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
 import type { IndexOf, Primitive } from '../../core/utils'
 import { type NeverSchema, never } from '../never'
 import { type OptimizeMaterial, optimizeMaterial } from './optimizeMaterial'
@@ -24,7 +24,7 @@ type IntersectionSchemaPath<Material extends IntersectionSchemaMaterial> = Index
 		: never
 	: never
 
-export class IntersectionSchema<Material extends IntersectionSchemaMaterial = IntersectionSchemaMaterial> extends BaseValSchema({
+export class IntersectionSchema<Material extends IntersectionSchemaMaterial = IntersectionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'intersection',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -32,11 +32,7 @@ export class IntersectionSchema<Material extends IntersectionSchemaMaterial = In
 	SchemaPath: IntersectionSchemaPath<Material>
 	Input: any
 	Output: IntersectionSchemaOutput<Material>
-}> {
-	constructor(material: Material) {
-		super(material)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	IntersectionSchema,

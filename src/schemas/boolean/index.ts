@@ -1,10 +1,10 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 
 type BooleanSchemaMaterial = null | boolean
 
 type BooleanSchemaOutput<Material extends BooleanSchemaMaterial> = Material extends null ? boolean : Material
 
-export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchemaMaterial> extends BaseValSchema({
+export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'boolean',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
@@ -12,10 +12,6 @@ export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchem
 	Input: any
 	Output: BooleanSchemaOutput<Material>
 }> {
-	constructor(material: Material) {
-		super(material)
-	}
-
 	isUnspecific(): this is BooleanSchema<null> {
 		return this._material == null
 	}

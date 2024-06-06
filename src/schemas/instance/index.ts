@@ -1,21 +1,17 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
 
 type InstanceSchemaMaterial = abstract new (...args: any) => any
 
 type InstanceSchemaOutput<Material extends InstanceSchemaMaterial> = InstanceType<Material>
 
-export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSchemaMaterial> extends BaseValSchema({
+export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'instance',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
 	Input: any
 	Output: InstanceSchemaOutput<Material>
-}> {
-	constructor(material: Material) {
-		super(material)
-	}
-}
+}> {}
 
 implementExecuteFn(
 	InstanceSchema,

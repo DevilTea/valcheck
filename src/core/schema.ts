@@ -151,6 +151,32 @@ abstract class _BaseValSchema<
 export function BaseValSchema<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
 	abstract class BaseValSchema<
 		Params extends {
+			Input: any
+			Output: any
+			SchemaPath?: (string | number | symbol)[]
+		},
+	> extends _BaseValSchema<{
+		Name: Name
+		Issues: Issues
+		Material: null
+		Input: Params['Input']
+		Output: Params['Output']
+		SchemaPath: Params['SchemaPath']
+	}> {
+		_name = name
+		_issues = issues || [] as any
+
+		constructor() {
+			super(null)
+		}
+	}
+
+	return BaseValSchema
+}
+
+export function BaseValSchemaWithMaterial<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
+	abstract class BaseValSchema<
+		Params extends {
 			Material: any
 			Input: any
 			Output: any
