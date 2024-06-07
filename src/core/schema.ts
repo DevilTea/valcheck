@@ -122,7 +122,7 @@ abstract class _BaseValSchema<
 		throw new Error('Not implemented')
 	}
 
-	execute(input: Input, context?: ExecutionContext) {
+	execute(input: Input, context?: ExecutionContext): ValidationResult<Output> {
 		const _context = context || createExecutionContext()
 		const payload = {
 			schema: this,
@@ -137,7 +137,7 @@ abstract class _BaseValSchema<
 		return this._execute(payload)
 	}
 
-	parse(input: Input) {
+	parse(input: Input): Output {
 		const context = createExecutionContext()
 		const result = this.execute(input, context)
 

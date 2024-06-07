@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BigintSchema, BooleanSchema, NullSchema, NumberSchema, StringSchema, SymbolSchema, UndefinedSchema, bigint, boolean, null_, number, string, symbol, undefined_ } from '../schemas'
+import { BigintSchema, BooleanSchema, NullSchema, NumberSchema, StringSchema, SymbolSchema, UndefinedSchema } from '../schemas'
 import { convertPrimitives, isPrimitive, toPrimitiveSchema } from './utils'
 
 describe('test "isPrimitive" function', () => {
