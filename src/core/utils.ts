@@ -4,7 +4,7 @@ import { type BigintSchema, bigint } from '../schemas/bigint'
 import { type BooleanSchema, boolean } from '../schemas/boolean'
 import { type NumberSchema, number } from '../schemas/number'
 import { type StringSchema, string } from '../schemas/string'
-import type { AnyValSchema } from './schema'
+import type { AnyValSchema, AnyValSchemaThatOutputs } from './schema'
 
 export type As<T, Input> = Input extends T ? Input : never
 
@@ -96,4 +96,16 @@ export type ConvertPrimitives<Material extends (Primitive | AnyValSchema)[], Res
 
 export function convertPrimitives<Items extends (Primitive | AnyValSchema)[]>(items: [...Items]) {
 	return items.map(item => isPrimitive(item) ? toPrimitiveSchema(item) : item) as ConvertPrimitives<Items>
+}
+
+export type OptionalItem<T> = ['?', T]
+
+export function isOptionalItem<T>(item: any): item is OptionalItem<T> {
+	return Array.isArray(item) && item.length === 2 && item[0] === '?'
+}
+
+export type RestItem = ['...', AnyValSchemaThatOutputs<any[]>]
+
+export function isRestItem(item: any): item is RestItem {
+	return Array.isArray(item) && item.length === 2 && item[0] === '...'
 }

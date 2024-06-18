@@ -1,10 +1,9 @@
-import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
-import { type ConvertPrimitives, type Primitive, convertPrimitives } from '../../core/utils'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, type RestItem, isOptionalItem, isPrimitive, isRestItem, toPrimitiveSchema } from '../../core/utils'
 
 const REST_PATH = '<rest>'
 
-type Item = AnyValSchema
-type RestItem = ['...', AnyValSchemaThatOutputs<any[]>]
+type Item = AnyValSchema | OptionalItem<AnyValSchema>
 
 type TupleSchemaMaterial = [
 	head: Item[],
@@ -12,9 +11,11 @@ type TupleSchemaMaterial = [
 	tail: Item[],
 ]
 
-type TupleSchemaOutput_Items<Items extends Item[]> = { [index in keyof Items]: OutputOf<Items[index]> } extends infer T extends any[]
-	? T
-	: never
+type TupleSchemaOutput_Items<Items extends Item[]> = Items extends [infer Head extends Item, ...infer Rest extends Item[]]
+	? Head extends OptionalItem<AnyValSchema>
+		? [OutputOf<Head[1]>?, ...TupleSchemaOutput_Items<Rest>]
+		: [OutputOf<Head>, ...TupleSchemaOutput_Items<Rest>]
+	: []
 type TupleSchemaOutput_Rest<Rest extends [] | [RestItem[1]]> = Rest extends [RestItem[1]]
 	? OutputOf<Rest[0]>
 	: []
@@ -89,9 +90,19 @@ implementExecuteFn(
 			const materialPart = material[partIndex]!
 			for (let indexInPart = 0; indexInPart < inputPart.length; indexInPart++) {
 				context.currentPath = [...path, itemIndex]
-				const item = inputPart[indexInPart]!
-				const schema = materialPart[indexInPart]!
-				const result = schema.execute(item, context)
+				const inputItem = inputPart[indexInPart]!
+				const materialItem = materialPart[indexInPart]!
+
+				let result
+				if (isOptionalItem(materialItem) && inputItem !== undefined)
+					result = materialItem[1].execute(inputItem, context)
+
+				else if (isOptionalItem(materialItem))
+					result = { type: 'passed', value: undefined }
+
+				else
+					result = materialItem.execute(inputItem, context)
+
 				if (result.type === 'failed')
 					failed = true
 
@@ -112,21 +123,37 @@ export function isTupleSchema(schema: any): schema is TupleSchema {
 	return schema instanceof TupleSchema
 }
 
-type RawItem = Primitive | Item
-type RawTupleSchemaMaterial = [
+type RawItem = Primitive | AnyValSchema | OptionalItem<Primitive | AnyValSchema>
+type RawTupleSchemaMaterial =
 	// Case 1: [...any[]]
-	[RawItem[]] | [RestItem],
+	| [RawItem[]]
+	| [RestItem]
 	// Case 2: [...any[], ...]
-	[RestItem, RawItem[]],
+	| [RestItem, RawItem[]]
 	// Case 3: [..., ...any[]]
-	[[...RawItem[]], RestItem],
+	| [[...RawItem[]], RestItem]
 	// Case 4: [..., ...any[], ...]
-	[RawItem[], RestItem, RawItem[]],
-][number]
+	| [RawItem[], RestItem, RawItem[]]
 
-function isRestItem(item: any): item is RestItem {
-	return Array.isArray(item) && item.length === 2 && item[0] === '...'
+function resolveRawItems(rawItems: RawItem[]) {
+	return rawItems.map((item) => {
+		if (isOptionalItem(item) && isPrimitive(item[1]))
+			return ['?', toPrimitiveSchema(item[1])]
+
+		if (isPrimitive(item))
+			return toPrimitiveSchema(item)
+
+		return item
+	}) as Item[]
 }
+
+type ResolveRawItems<RawItems extends RawItem[]> = RawItems extends [infer I extends RawItem, ...infer Rest extends RawItem[]]
+	? I extends OptionalItem<Primitive>
+		? [OptionalItem<PrimitiveValueToSchema<I[1]>>, ...ResolveRawItems<Rest>]
+		: I extends Primitive
+			? [PrimitiveValueToSchema<I>, ...ResolveRawItems<Rest>]
+			: [I, ...ResolveRawItems<Rest>]
+	: []
 
 function resolveMaterial(rawMaterial: RawTupleSchemaMaterial): TupleSchemaMaterial {
 	const restIndex = rawMaterial.findIndex(isRestItem)
@@ -136,23 +163,40 @@ function resolveMaterial(rawMaterial: RawTupleSchemaMaterial): TupleSchemaMateri
 		const restIndex = rawMaterial.findIndex(isRestItem)
 		const head = restIndex === 0
 			? []
-			: convertPrimitives(rawMaterial[0] as RawItem[])
+			: resolveRawItems(rawMaterial[0] as RawItem[])
 		const rest = [(rawMaterial[restIndex] as RestItem)[1]] as [RestItem[1]]
 		const tail = rawMaterial[restIndex + 1] == null
 			? []
-			: convertPrimitives(rawMaterial[restIndex + 1] as RawItem[])
+			: resolveRawItems(rawMaterial[restIndex + 1] as RawItem[])
 		return [head, rest, tail]
 	}
 
-	const head = convertPrimitives(rawMaterial[0] as RawItem[])
+	const head = resolveRawItems(rawMaterial[0] as RawItem[])
 	return [head, [], []]
 }
 
-export function tuple<Head extends RawItem[]>(head: [...Head]): TupleSchema<[ConvertPrimitives<Head>, [], []]>
-export function tuple<Head extends RawItem[], Rest extends RestItem>(head: [...Head], rest: Rest): TupleSchema<[ConvertPrimitives<Head>, [Rest[1]], []]>
-export function tuple<Head extends RawItem[], Rest extends RestItem, Tail extends RawItem[]>(head: [...Head], rest: Rest, tail: [...Tail]): TupleSchema<[ConvertPrimitives<Head>, [Rest[1]], ConvertPrimitives<Tail>]>
+export function tuple<
+	RawHead extends RawItem[],
+	Head extends Item[] = As<Item[], ResolveRawItems<RawHead>>,
+>(head: [...RawHead]): TupleSchema<[Head, [], []]>
+export function tuple<
+	RawHead extends RawItem[],
+	Rest extends RestItem,
+	Head extends Item[] = As<Item[], ResolveRawItems<RawHead>>,
+>(head: [...RawHead], rest: Rest): TupleSchema<[Head, [Rest[1]], []]>
+export function tuple<
+	RawHead extends RawItem[],
+	Rest extends RestItem,
+	RawTail extends RawItem[],
+	Head extends Item[] = As<Item[], ResolveRawItems<RawHead>>,
+	Tail extends Item[] = As<Item[], ResolveRawItems<RawTail>>,
+>(head: [...RawHead], rest: Rest, tail: [...RawTail]): TupleSchema<[Head, [Rest[1]], Tail]>
 export function tuple<Rest extends RestItem>(rest: Rest): TupleSchema<[[], [Rest[1]], []]>
-export function tuple<Rest extends RestItem, Tail extends RawItem[]>(rest: Rest, tail: [...Tail]): TupleSchema<[[], [Rest[1]], ConvertPrimitives<Tail>]>
+export function tuple<
+	Rest extends RestItem,
+	RawTail extends RawItem[],
+	Tail extends Item[] = As<Item[], ResolveRawItems<RawTail>>,
+>(rest: Rest, tail: [...RawTail]): TupleSchema<[[], [Rest[1]], Tail]>
 export function tuple(...args: RawTupleSchemaMaterial) {
 	const resolvedMaterial = resolveMaterial(args)
 	return new TupleSchema(resolvedMaterial)
