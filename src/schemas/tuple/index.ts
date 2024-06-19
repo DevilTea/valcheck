@@ -1,7 +1,5 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
 import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, type RestItem, isOptionalItem, isPrimitive, isRestItem, toPrimitiveSchema } from '../../core/utils'
-
-const REST_PATH = '<rest>'
 
 type Item = AnyValSchema | OptionalItem<AnyValSchema>
 
@@ -26,33 +24,11 @@ type TupleSchemaOutput<Material extends TupleSchemaMaterial> = [
 	...TupleSchemaOutput_Items<Material[2]>,
 ]
 
-type IndexFromStartOf<Tuple extends any[], Result extends number[] = []> = Tuple extends [any, ...infer Rest extends any[]]
-	? IndexFromStartOf<Rest, [...Result, Result['length']]>
-	: Result
-type IndexFromEndOf<Tuple extends any[], Result extends number[] = []> = Tuple extends [any, ...infer Rest extends any[]]
-	? IndexFromEndOf<Rest, [...Result, `-${Tuple['length']}` extends `${infer N extends number}` ? N : never]>
-	: Result
-
-type TupleSchemaPath_Head<Head extends Item[], Index extends number = IndexFromStartOf<Head>[number]> = Index extends number
-	? [Index, ...SchemaPathOf<Head[Index]>]
-	: never
-type TupleSchemaPath_Rest<Rest extends [] | [RestItem[1]]> = Rest extends [RestItem[1]]
-	? [typeof REST_PATH, ...SchemaPathOf<Rest[0]>]
-	: never
-type TupleSchemaPath_Tail<Tail extends Item[], Index extends number = IndexFromEndOf<Tail>[number]> = Index extends number
-	? [Index, ...SchemaPathOf<Tail[Index]>]
-	: never
-type TupleSchemaPath<Material extends TupleSchemaMaterial> =
-	| TupleSchemaPath_Head<Material[0]>
-	| TupleSchemaPath_Rest<Material[1]>
-	| TupleSchemaPath_Tail<Material[2]>
-
 export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'tuple',
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_LENGTH', 'UNEXPECTED_TUPLE_ITEM'],
 })<{
 	Material: Material
-	SchemaPath: TupleSchemaPath<Material>
 	Input: any
 	Output: TupleSchemaOutput<Material>
 }> {}

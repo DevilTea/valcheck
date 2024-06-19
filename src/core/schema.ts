@@ -92,14 +92,12 @@ abstract class _BaseValSchema<
 		Material: any
 		Input: any
 		Output: any
-		SchemaPath: (string | number | symbol)[]
 	},
 	Name extends string = Params['Name'],
 	Issues extends string[] = Params['Issues'],
 	Material = Params['Material'],
 	Input = Params['Input'],
 	Output = Params['Output'],
-	SchemaPath extends ValSchemaPath = Params['SchemaPath'],
 > {
 	abstract _name: Name
 	abstract _issues: Issues | []
@@ -109,7 +107,6 @@ abstract class _BaseValSchema<
 	 * Only used for type inference
 	 */
 	_types = shouldNeverBeCalled<{
-		_schemaPath: SchemaPath
 		_input: Input
 		_output: Output
 	}>
@@ -153,18 +150,15 @@ export function BaseValSchema<Name extends string, Issues extends string[] = []>
 		Params extends {
 			Input: any
 			Output: any
-			SchemaPath?: ValSchemaPath
 		},
 		Input = Params['Input'],
 		Output = Params['Output'],
-		SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? (Params['SchemaPath'] | []) : [],
 	> extends _BaseValSchema<{
 		Name: Name
 		Issues: Issues
 		Material: null
 		Input: Input
 		Output: Output
-		SchemaPath: SchemaPath | []
 	}> {
 		_name = name
 		_issues = issues || []
@@ -183,19 +177,16 @@ export function BaseValSchemaWithMaterial<Name extends string, Issues extends st
 			Material: any
 			Input: any
 			Output: any
-			SchemaPath?: ValSchemaPath
 		},
 		Material = Params['Material'],
 		Input = Params['Input'],
 		Output = Params['Output'],
-		SchemaPath extends ValSchemaPath = Params['SchemaPath'] extends ValSchemaPath ? (Params['SchemaPath'] | []) : [],
 	> extends _BaseValSchema<{
 		Name: Name
 		Issues: Issues
 		Material: Material
 		Input: Input
 		Output: Output
-		SchemaPath: SchemaPath
 	}> {
 		_name = name
 		_issues = issues || []
@@ -204,11 +195,11 @@ export function BaseValSchemaWithMaterial<Name extends string, Issues extends st
 	return BaseValSchema
 }
 
-type AnyValSchemaClassThatOutputs<Output> = typeof _BaseValSchema<{ Name: any, Issues: any, SchemaPath: any, Material: any, Input: any, Output: Output }>
+type AnyValSchemaClassThatOutputs<Output> = typeof _BaseValSchema<{ Name: any, Issues: any, Material: any, Input: any, Output: Output }>
 
 type AnyValSchemaClass = AnyValSchemaClassThatOutputs<any>
 
-export type AnyValSchemaThatOutputs<Output> = _BaseValSchema<{ Name: any, Issues: any, SchemaPath: any, Material: any, Input: any, Output: Output }>
+export type AnyValSchemaThatOutputs<Output> = _BaseValSchema<{ Name: any, Issues: any, Material: any, Input: any, Output: Output }>
 
 export type AnyValSchema = AnyValSchemaThatOutputs<any>
 
@@ -226,10 +217,6 @@ export type IssuesOf<Schema> = Schema extends AnyValSchema
 
 export type MaterialOf<Schema> = Schema extends AnyValSchema
 	? Schema['_material']
-	: 'Not A ValSchema'
-
-export type SchemaPathOf<Schema> = Schema extends AnyValSchema
-	? ReturnType<Schema['_types']>['_schemaPath']
 	: 'Not A ValSchema'
 
 export type InputOf<Schema> = Schema extends AnyValSchema

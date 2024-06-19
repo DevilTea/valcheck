@@ -1,25 +1,16 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, type ValSchemaPath, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 import { type AnySchema, any } from '../any'
-
-const ITEM_PATH = '<item>'
 
 type ArraySchemaMaterial = AnyValSchema
 
 type ArraySchemaOutput<Material extends ArraySchemaMaterial> = OutputOf<Material>[] & NonNullable<unknown>
-
-type ArraySchemaPath<Material extends ArraySchemaMaterial, P extends ValSchemaPath = SchemaPathOf<Material>> =
-	// If "P" is an union type, then we need to iterate over each item in the union type.
-	P extends any
-		? [typeof ITEM_PATH, ...P]
-		: never
 
 export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'array',
 	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_ARRAY_ITEM'],
 })<{
 	Material: Material
-	SchemaPath: ArraySchemaPath<Material>
 	Input: any
 	Output: ArraySchemaOutput<Material>
 }> {}

@@ -1,5 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
-import type { IndexOf } from '../../core/utils'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
 import { type NeverSchema, never } from '../never'
 import { type OptimizeMaterial, type RawIntersectionSchemaMaterial, optimizeMaterial } from './optimizeMaterial'
 
@@ -17,18 +16,11 @@ type ToIntersection<T extends [any]> = (T extends [any] ? (_: T) => any : never)
 
 type IntersectionSchemaOutput<Material extends IntersectionSchemaMaterial> = ToIntersection<ToTupleUnion<Material>>
 
-type IntersectionSchemaPath<Material extends IntersectionSchemaMaterial> = IndexOf<Material> extends infer Index
-	? Index extends number
-		? [`<${Index}>`, ...SchemaPathOf<Material[Index]>]
-		: never
-	: never
-
 export class IntersectionSchema<Material extends IntersectionSchemaMaterial = IntersectionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'intersection',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: IntersectionSchemaPath<Material>
 	Input: any
 	Output: IntersectionSchemaOutput<Material>
 }> {}

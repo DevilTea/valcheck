@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type MaterialOf, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type MaterialOf, type OutputOf, implementExecuteFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 import type { AnySchema } from '../any'
 import type { NeverSchema } from '../never'
@@ -9,13 +9,9 @@ import { type SymbolSchema, isSymbolSchema, symbol } from '../symbol'
 import { type CreateUnionSchema, type UnionSchema, isUnionSchema, union } from '../union'
 import type { UnknownSchema } from '../unknown'
 
-const KEY_PATH = '<key>'
-const VALUE_PATH = '<value>'
-
 type RecordSchemaMaterialOfKey = AnySchema | UnknownSchema | NeverSchema | StringSchema | SymbolSchema | UnionSchema<(StringSchema | SymbolSchema)[]>
 export type RecordSchemaMaterial = [key: RecordSchemaMaterialOfKey, value: AnyValSchema]
 export type RecordSchemaOutput<Material extends RecordSchemaMaterial> = Record<OutputOf<Material[0]>, OutputOf<Material[1]>>
-export type RecordSchemaPath<Material extends RecordSchemaMaterial> = [] | [typeof KEY_PATH, ...SchemaPathOf<Material[0]>] | [typeof VALUE_PATH, ...SchemaPathOf<Material[1]>]
 
 function _collectRequiredKeys(keySchema: RecordSchemaMaterialOfKey): (string | symbol)[] {
 	if (isStringSchema(keySchema) && keySchema.isSpecific())
@@ -38,7 +34,6 @@ export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseVal
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: RecordSchemaPath<Material>
 	Input: any
 	Output: RecordSchemaOutput<Material>
 }> {

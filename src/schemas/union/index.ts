@@ -1,5 +1,5 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, type SchemaPathOf, implementExecuteFn } from '../../core/schema'
-import type { IndexOf, Primitive } from '../../core/utils'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import type { Primitive } from '../../core/utils'
 import { type NeverSchema, never } from '../never'
 import { type OptimizeMaterial, optimizeMaterial } from './optimizeMaterial'
 
@@ -12,18 +12,11 @@ type UnionSchemaOutput<Material extends UnionSchemaMaterial> = Material[number] 
 		: never
 	: never
 
-type UnionSchemaPath<Material extends UnionSchemaMaterial> = IndexOf<Material> extends infer Index
-	? Index extends number
-		? [`<${Index}>`, ...SchemaPathOf<Material[Index]>]
-		: never
-	: never
-
 export class UnionSchema<Material extends UnionSchemaMaterial = UnionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'union',
 	Issues: ['UNEXPECTED_INPUT'],
 })<{
 	Material: Material
-	SchemaPath: UnionSchemaPath<Material>
 	Input: any
 	Output: UnionSchemaOutput<Material>
 }> {}
