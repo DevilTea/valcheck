@@ -4,7 +4,7 @@ import { type BigintSchema, bigint } from '../schemas/bigint'
 import { type BooleanSchema, boolean } from '../schemas/boolean'
 import { type NumberSchema, number } from '../schemas/number'
 import { type StringSchema, string } from '../schemas/string'
-import type { AnyValSchema, AnyValSchemaThatOutputs } from './schema'
+import type { AnyValSchema } from './schema'
 
 export type As<T, Input> = Input extends T ? Input : never
 
@@ -98,14 +98,26 @@ export function convertPrimitives<Items extends (Primitive | AnyValSchema)[]>(it
 	return items.map(item => isPrimitive(item) ? toPrimitiveSchema(item) : item) as ConvertPrimitives<Items>
 }
 
-export type OptionalItem<T> = ['?', T]
+const OPTIONAL_SYMBOL = Symbol('optional')
 
-export function isOptionalItem<T>(item: any): item is OptionalItem<T> {
-	return Array.isArray(item) && item.length === 2 && item[0] === '?'
+export function optional<T>(item: T): OptionalItem<T> {
+	return [OPTIONAL_SYMBOL, item]
 }
 
-export type RestItem = ['...', AnyValSchemaThatOutputs<any[]>]
+export type OptionalItem<T> = [typeof OPTIONAL_SYMBOL, T]
 
-export function isRestItem(item: any): item is RestItem {
-	return Array.isArray(item) && item.length === 2 && item[0] === '...'
+export function isOptionalItem(item: any): item is OptionalItem<any> {
+	return Array.isArray(item) && item.length === 2 && item[0] === OPTIONAL_SYMBOL
+}
+
+const REST_SYMBOL = Symbol('rest')
+
+export function rest<T>(item: T): RestItem<T> {
+	return [REST_SYMBOL, item]
+}
+
+export type RestItem<T> = [typeof REST_SYMBOL, T]
+
+export function isRestItem(item: any): item is RestItem<any> {
+	return Array.isArray(item) && item.length === 2 && item[0] === REST_SYMBOL
 }

@@ -1,7 +1,8 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
-import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, type RestItem, isOptionalItem, isPrimitive, isRestItem, toPrimitiveSchema } from '../../core/utils'
+import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, type RestItem as _RestItem, isOptionalItem, isPrimitive, isRestItem, toPrimitiveSchema } from '../../core/utils'
 
 type Item = AnyValSchema | OptionalItem<AnyValSchema>
+type RestItem = _RestItem<AnyValSchemaThatOutputs<any[]>>
 
 type TupleSchemaMaterial = [
 	head: Item[],
@@ -114,7 +115,7 @@ type RawTupleSchemaMaterial =
 function resolveRawItems(rawItems: RawItem[]) {
 	return rawItems.map((item) => {
 		if (isOptionalItem(item) && isPrimitive(item[1]))
-			return ['?', toPrimitiveSchema(item[1])]
+			return [item[0], toPrimitiveSchema(item[1])]
 
 		if (isPrimitive(item))
 			return toPrimitiveSchema(item)
