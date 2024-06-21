@@ -10,11 +10,11 @@ export class FunctionSchema<Fn extends Function = Function> extends BaseValSchem
 
 implementExecuteFn(
 	FunctionSchema,
-	({ input, fail, pass }) => {
-		if (typeof input !== 'function')
-			return fail('UNEXPECTED_INPUT', input)
+	({ input, reason, fail, pass }) => {
+		if (typeof input === 'function')
+			return pass(input)
 
-		return pass(input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

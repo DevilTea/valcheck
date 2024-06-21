@@ -20,11 +20,11 @@ export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMa
 
 implementExecuteFn(
 	ObjectSchema,
-	({ schema, input, context, fail, pass }) => {
+	({ schema, input, context, reason, fail, pass }) => {
 		if (typeof input !== 'object' || input === null || Array.isArray(input))
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
-		let failed = false
+		const reasons: any[] = []
 		const material = schema._material
 		const path = [...context.currentPath]
 		const keys = Reflect.ownKeys(material)
@@ -37,8 +37,7 @@ implementExecuteFn(
 				(key in input) === false
 				&& isOptionalItem(item) === false
 			) {
-				fail('MISSING_OBJECT_KEY', key)
-				failed = true
+				reasons.push(reason('MISSING_OBJECT_KEY', key))
 				continue
 			}
 
@@ -52,13 +51,12 @@ implementExecuteFn(
 				: item.execute(value, context)
 
 			if (valueResult.type === 'failed')
-				failed = true
+				reasons.push(reason('UNEXPECTED_OBJECT_VALUE', value, valueResult.reasons))
 		}
-
 		context.currentPath = path
 
-		if (failed)
-			return fail()
+		if (reasons.length > 0)
+			return fail(reasons)
 
 		return pass(input)
 	},

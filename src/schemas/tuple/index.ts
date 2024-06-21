@@ -27,7 +27,7 @@ type TupleSchemaOutput<Material extends TupleSchemaMaterial> = [
 
 export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'tuple',
-	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_LENGTH', 'UNEXPECTED_TUPLE_ITEM'],
+	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_ITEM'],
 })<{
 	Material: Material
 	Input: any
@@ -36,20 +36,14 @@ export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMater
 
 implementExecuteFn(
 	TupleSchema,
-	({ schema, input, context, fail, pass }) => {
+	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
 		const material = schema._material
 		const hasRest = material[1].length > 0
-		if (
-			(hasRest && input.length < material[0].length + material[2].length)
-			|| (!hasRest && input.length !== material[0].length)
-		)
-			return fail('UNEXPECTED_TUPLE_LENGTH', input)
 
 		let itemIndex = 0
-		let failed = false
 		const inputParts: [any[], any[], any[]] = hasRest
 			? [
 					input.slice(0, material[0].length),
@@ -61,6 +55,7 @@ implementExecuteFn(
 					[],
 					[],
 				]
+		const reasons: any[] = []
 		const path = [...context.currentPath]
 		for (let partIndex: 0 | 1 | 2 = 0; partIndex < inputParts.length; partIndex++) {
 			const inputPart = inputParts[partIndex]!
@@ -81,16 +76,15 @@ implementExecuteFn(
 					result = materialItem.execute(inputItem, context)
 
 				if (result.type === 'failed')
-					failed = true
+					reasons.push(reason('UNEXPECTED_TUPLE_ITEM', inputItem, result.reasons))
 
 				itemIndex++
 			}
 		}
-
 		context.currentPath = path
 
-		if (failed)
-			return fail()
+		if (reasons.length > 0)
+			return fail(reasons)
 
 		return pass(input)
 	},

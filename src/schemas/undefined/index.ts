@@ -10,9 +10,9 @@ export class UndefinedSchema extends BaseValSchema({
 
 implementExecuteFn(
 	UndefinedSchema,
-	({ input, fail, pass }) => {
+	({ input, reason, fail, pass }) => {
 		if (typeof input !== 'undefined')
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
 		return pass(input)
 	},

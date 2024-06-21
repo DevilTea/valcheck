@@ -33,7 +33,7 @@ export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMa
 
 implementExecuteFn(
 	StringSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input === 'string')
 			return pass(input)
 
@@ -43,7 +43,7 @@ implementExecuteFn(
 		if (schema.isTemplateLiteral() && schema._material.regexp.test(input))
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

@@ -15,11 +15,11 @@ export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSc
 
 implementExecuteFn(
 	InstanceSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if ((input instanceof schema._material))
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 
 )

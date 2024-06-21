@@ -23,9 +23,9 @@ export class UnionSchema<Material extends UnionSchemaMaterial = UnionSchemaMater
 
 implementExecuteFn(
 	UnionSchema,
-	({ schema, input, context, fail, pass }) => {
-		context.shouldCollectReason = false
+	({ schema, input, reason, fail, pass }) => {
 		let failed = true
+		const reasons: any[] = []
 
 		for (const _schema of schema._material) {
 			const result = _schema.execute(input)
@@ -34,12 +34,12 @@ implementExecuteFn(
 				failed = false
 				break
 			}
+
+			reasons.push(...result.reasons)
 		}
 
-		context.shouldCollectReason = true
-
 		if (failed)
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input, reasons)])
 
 		return pass(input)
 	},

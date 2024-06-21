@@ -10,8 +10,8 @@ export class NeverSchema extends BaseValSchema({
 
 implementExecuteFn(
 	NeverSchema,
-	({ input, fail }) => {
-		return fail('UNEXPECTED_INPUT', input)
+	({ input, reason, fail }) => {
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

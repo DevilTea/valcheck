@@ -23,14 +23,14 @@ export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMa
 
 implementExecuteFn(
 	BigintSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input === 'bigint')
 			return pass(input)
 
 		if (schema.isSpecific() && input === schema._material)
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

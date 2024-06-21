@@ -23,7 +23,7 @@ export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMa
 
 implementExecuteFn(
 	NumberSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input === 'number')
 			return pass(input)
 
@@ -35,7 +35,7 @@ implementExecuteFn(
 		)
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

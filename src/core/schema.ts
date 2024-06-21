@@ -9,6 +9,7 @@ export interface ValidationResultPassed<Output> extends BaseValidationResult {
 
 export interface ValidationResultFailed extends BaseValidationResult {
 	type: 'failed'
+	reasons: ValidationFailedReason<any>[]
 }
 
 export type ExecutionPath = (string | number | symbol)[]
@@ -19,12 +20,19 @@ export interface ValidationFailedReason<Issue extends string> {
 	issue: Issue
 	path: ExecutionPath
 	value: any
+	reasons?: ValidationFailedReason<any>[] | undefined
 }
 
-export interface ExecutionContext {
+export class ExecutionContext {
 	currentPath: ExecutionPath
-	shouldCollectReason: boolean
-	reasons: ValidationFailedReason<any>[]
+
+	constructor() {
+		this.currentPath = []
+	}
+}
+
+function createExecutionContext() {
+	return new ExecutionContext()
 }
 
 export type ValidationResult<Output> = ValidationResultPassed<Output> | ValidationResultFailed
@@ -37,48 +45,50 @@ export class ValidationError extends Error {
 	}
 }
 
-export interface ProvidedExecuteFnPayload<Schema extends AnyValSchema> {
-	schema: Schema
-	input: InputOf<Schema>
-	context: ExecutionContext
-	pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
-	fail: IssuesOf<Schema> extends []
-		? () => ValidationResultFailed
-		: {
-				(issue: IssuesOf<Schema>[number], value: any): ValidationResultFailed
-				(): ValidationResultFailed
-			}
-}
+export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
+	{
+		schema: Schema
+		input: InputOf<Schema>
+		context: ExecutionContext
+		pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
+		reason: (issue: IssuesOf<Schema>[number], value: any, reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<IssuesOf<Schema>[number]>
+		fail: (reasons: ValidationFailedReason<IssuesOf<Schema>[number]>[]) => ValidationResultFailed
+	},
+	IssuesOf<Schema> extends []
+		? 'reason' | 'fail'
+		: never
+>
 
 type ExecuteFnImpl<Schema extends AnyValSchema> = (payload: ProvidedExecuteFnPayload<Schema>) => ValidationResult<OutputOf<Schema>>
-
-function createExecutionContext(): ExecutionContext {
-	return {
-		currentPath: [],
-		shouldCollectReason: true,
-		reasons: [],
-	}
-}
 
 function pass(value: any): ValidationResultPassed<any> {
 	return { type: 'passed', value }
 }
 
-function fail(): ValidationResultFailed
-function fail(issue: string, value: any, schema: AnyValSchema, context: ExecutionContext): ValidationResultFailed
-function fail(...args: [] | [issue: string, value: any, schema: AnyValSchema, context: ExecutionContext]): ValidationResultFailed {
-	if (args.length !== 0 && args[3].shouldCollectReason) {
-		const [issue, value, schema, context] = args
-		const path = [...context.currentPath]
-		const reason: ValidationFailedReason<string> = {
-			schema,
-			issue,
-			path,
-			value,
-		}
-		context.reasons.push(reason)
+function reason({
+	context,
+	schema,
+	issue,
+	value,
+	reasons,
+}: {
+	context: ExecutionContext
+	schema: AnyValSchema
+	issue: string
+	value: any
+	reasons?: ValidationFailedReason<any>[] | undefined
+}): ValidationFailedReason<any> {
+	return {
+		schema,
+		issue,
+		path: [...context.currentPath],
+		value,
+		reasons,
 	}
-	return { type: 'failed' }
+}
+
+function fail(reasons: ValidationFailedReason<any>[]): ValidationResultFailed {
+	return { type: 'failed', reasons }
 }
 
 function shouldNeverBeCalled<T>(): T {
@@ -119,17 +129,16 @@ abstract class _BaseValSchema<
 		throw new Error('Not implemented')
 	}
 
-	execute(input: Input, context?: ExecutionContext): ValidationResult<Output> {
-		const _context = context || createExecutionContext()
+	execute(input: Input, context: ExecutionContext = createExecutionContext()): ValidationResult<Output> {
 		const payload = {
 			schema: this,
-			input: input as InputOf<typeof this>,
-			context: _context,
-			material: this._material as MaterialOf<typeof this>,
+			input,
+			context,
+			material: this._material,
 			pass,
-			fail: (...args: [] | [issue: string, value: any]) => args.length === 0
-				? fail()
-				: fail(args[0], args[1], this, _context),
+			reason: (issue: string, value: any, reasons?: ValidationFailedReason<any>[] | undefined) =>
+				reason({ context, schema: this, issue, value, reasons }),
+			fail,
 		}
 		return this._execute(payload)
 	}
@@ -139,7 +148,7 @@ abstract class _BaseValSchema<
 		const result = this.execute(input, context)
 
 		if (result.type === 'failed')
-			throw new ValidationError(context.reasons)
+			throw new ValidationError(result.reasons)
 
 		return result.value
 	}

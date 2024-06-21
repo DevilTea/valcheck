@@ -23,14 +23,14 @@ export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMa
 
 implementExecuteFn(
 	SymbolSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input === 'symbol')
 			return pass(input)
 
 		if (schema.isSpecific() && input === schema._material)
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

@@ -31,7 +31,7 @@ function collectRequiredKeys(keySchema: RecordSchemaMaterialOfKey) {
 
 export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'record',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_RECORD_KEY', 'UNEXPECTED_RECORD_VALUE', 'MISSING_RECORD_KEYS'],
 })<{
 	Material: Material
 	Input: any
@@ -47,16 +47,16 @@ export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseVal
 
 implementExecuteFn(
 	RecordSchema,
-	({ schema, input, context, fail, pass }) => {
+	({ schema, input, context, reason, fail, pass }) => {
 		if (typeof input !== 'object' || input === null || Array.isArray(input))
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
 		const material = schema._material
 		const missingKeys = new Set(schema._requiredKeys)
 		const keySchema = material[0]
 		const valueSchema = material[1]
 
-		let failed = false
+		const reasons: any[] = []
 		const path = [...context.currentPath]
 
 		for (const key of Reflect.ownKeys(input)) {
@@ -65,23 +65,23 @@ implementExecuteFn(
 			missingKeys.delete(key)
 			const keyResult = keySchema.execute(key, context)
 			if (keyResult.type === 'failed') {
-				failed = true
+				reasons.push(reason('UNEXPECTED_RECORD_KEY', key, keyResult.reasons))
 				continue
 			}
 
 			const value = input[key]!
 			const valueResult = valueSchema.execute(value, context)
 			if (valueResult.type === 'failed')
-				failed = true
+				reasons.push(reason('UNEXPECTED_RECORD_VALUE', value, valueResult.reasons))
 		}
 
 		if (missingKeys.size > 0)
-			failed = true
+			reasons.push(reason('MISSING_RECORD_KEYS', [...missingKeys]))
 
 		context.currentPath = path
 
-		if (failed)
-			return fail()
+		if (reasons.length > 0)
+			return fail(reasons)
 
 		return pass(input)
 	},

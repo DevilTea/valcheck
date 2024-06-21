@@ -27,22 +27,21 @@ export class IntersectionSchema<Material extends IntersectionSchemaMaterial = In
 
 implementExecuteFn(
 	IntersectionSchema,
-	({ schema, input, context, fail, pass }) => {
-		context.shouldCollectReason = false
-
+	({ schema, input, reason, fail, pass }) => {
 		let failed = false
+		const reasons: any[] = []
+
 		for (const _schema of schema._material) {
 			const result = _schema.execute(input)
 			if (result.type === 'failed') {
 				failed = true
+				reasons.push(...result.reasons)
 				break
 			}
 		}
 
-		context.shouldCollectReason = true
-
 		if (failed)
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input, reasons)])
 
 		return pass(input)
 	},

@@ -23,14 +23,14 @@ export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchem
 
 implementExecuteFn(
 	BooleanSchema,
-	({ schema, input, fail, pass }) => {
+	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input === 'boolean')
 			return pass(input)
 
 		if (schema.isSpecific() && input === schema._material)
 			return pass(input)
 
-		return fail('UNEXPECTED_INPUT', input)
+		return fail([reason('UNEXPECTED_INPUT', input)])
 	},
 )
 

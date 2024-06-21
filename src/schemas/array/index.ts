@@ -17,24 +17,23 @@ export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSc
 
 implementExecuteFn(
 	ArraySchema,
-	({ schema, input, context, fail, pass }) => {
+	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
-		let failed = false
+		const reasons: any[] = []
 		const path = [...context.currentPath]
 		for (let i = 0; i < input.length; i++) {
 			context.currentPath = [...path, i]
 			const item = input[i]!
 			const itemResult = schema._material.execute(item, context)
 			if (itemResult.type === 'failed')
-				failed = true
+				reasons.push(reason('UNEXPECTED_ARRAY_ITEM', item, itemResult.reasons))
 		}
-
 		context.currentPath = path
 
-		if (failed)
-			return fail()
+		if (reasons.length > 0)
+			return fail(reasons)
 
 		return pass(input)
 	},

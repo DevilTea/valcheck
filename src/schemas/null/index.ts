@@ -10,9 +10,9 @@ export class NullSchema extends BaseValSchema({
 
 implementExecuteFn(
 	NullSchema,
-	({ input, fail, pass }) => {
+	({ input, reason, fail, pass }) => {
 		if (input !== null)
-			return fail('UNEXPECTED_INPUT', input)
+			return fail([reason('UNEXPECTED_INPUT', input)])
 
 		return pass(input)
 	},
