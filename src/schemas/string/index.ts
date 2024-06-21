@@ -12,7 +12,7 @@ type StringSchemaOutput<Material extends StringSchemaMaterial> = Material extend
 
 export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'string',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['STRING_EXPECTED', 'STRING_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -34,16 +34,16 @@ export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMa
 implementExecuteFn(
 	StringSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if (schema.isUnspecific() && typeof input === 'string')
-			return pass(input)
+		if (schema.isUnspecific() && typeof input !== 'string')
+			return fail([reason('STRING_EXPECTED', { input })])
 
-		if (schema.isSpecific() && input === schema._material)
-			return pass(input)
+		if (schema.isSpecific() && input !== schema._material)
+			return fail([reason('STRING_MISMATCH', { input, expected: schema._material })])
 
-		if (schema.isTemplateLiteral() && schema._material.regexp.test(input))
-			return pass(input)
+		if (schema.isTemplateLiteral() && schema._material.regexp.test(input) === false)
+			return fail([reason('STRING_MISMATCH', { input, expected: schema._material.regexp })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 )
 

@@ -6,7 +6,7 @@ type BigintSchemaOutput<Material extends BigintSchemaMaterial> = Material extend
 
 export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'bigint',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['BIGINT_EXPECTED', 'BIGINT_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -24,13 +24,13 @@ export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMa
 implementExecuteFn(
 	BigintSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if (schema.isUnspecific() && typeof input === 'bigint')
-			return pass(input)
+		if (schema.isUnspecific() && typeof input !== 'bigint')
+			return fail([reason('BIGINT_EXPECTED', { input })])
 
-		if (schema.isSpecific() && input === schema._material)
-			return pass(input)
+		if (schema.isSpecific() && input !== schema._material)
+			return fail([reason('BIGINT_MISMATCH', { input, expected: schema._material })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 )
 

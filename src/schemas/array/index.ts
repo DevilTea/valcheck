@@ -8,7 +8,7 @@ type ArraySchemaOutput<Material extends ArraySchemaMaterial> = OutputOf<Material
 
 export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'array',
-	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_ARRAY_ITEM'],
+	Issues: ['ARRAY_EXPECTED', 'ARRAY_ITEM_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -19,7 +19,7 @@ implementExecuteFn(
 	ArraySchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))
-			return fail([reason('UNEXPECTED_INPUT', input)])
+			return fail([reason('ARRAY_EXPECTED', { input })])
 
 		const reasons: any[] = []
 		const path = [...context.currentPath]
@@ -28,7 +28,7 @@ implementExecuteFn(
 			const item = input[i]!
 			const itemResult = schema._material.execute(item, context)
 			if (itemResult.type === 'failed')
-				reasons.push(reason('UNEXPECTED_ARRAY_ITEM', item, itemResult.reasons))
+				reasons.push(reason('ARRAY_ITEM_MISMATCH', { item }, itemResult.reasons))
 		}
 		context.currentPath = path
 

@@ -2,7 +2,7 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class UndefinedSchema extends BaseValSchema({
 	Name: 'undefined',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['UNDEFINED_EXPECTED'],
 })<{
 	Input: any
 	Output: undefined
@@ -12,7 +12,7 @@ implementExecuteFn(
 	UndefinedSchema,
 	({ input, reason, fail, pass }) => {
 		if (typeof input !== 'undefined')
-			return fail([reason('UNEXPECTED_INPUT', input)])
+			return fail([reason('UNDEFINED_EXPECTED', { input })])
 
 		return pass(input)
 	},

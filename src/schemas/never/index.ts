@@ -2,7 +2,7 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class NeverSchema extends BaseValSchema({
 	Name: 'never',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['NEVER_EXPECTED'],
 })<{
 	Input: any
 	Output: never
@@ -11,7 +11,7 @@ export class NeverSchema extends BaseValSchema({
 implementExecuteFn(
 	NeverSchema,
 	({ input, reason, fail }) => {
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return fail([reason('NEVER_EXPECTED', input)])
 	},
 )
 

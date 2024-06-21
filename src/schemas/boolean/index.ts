@@ -6,7 +6,7 @@ type BooleanSchemaOutput<Material extends BooleanSchemaMaterial> = Material exte
 
 export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'boolean',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['BOOLEAN_EXPECTED', 'BOOLEAN_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -24,13 +24,13 @@ export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchem
 implementExecuteFn(
 	BooleanSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if (schema.isUnspecific() && typeof input === 'boolean')
-			return pass(input)
+		if (schema.isUnspecific() && typeof input !== 'boolean')
+			return fail([reason('BOOLEAN_EXPECTED', { input })])
 
-		if (schema.isSpecific() && input === schema._material)
-			return pass(input)
+		if (schema.isSpecific() && input !== schema._material)
+			return fail([reason('BOOLEAN_MISMATCH', { input, expected: schema._material })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 )
 

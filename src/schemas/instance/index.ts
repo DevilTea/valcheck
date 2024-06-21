@@ -6,7 +6,7 @@ type InstanceSchemaOutput<Material extends InstanceSchemaMaterial> = InstanceTyp
 
 export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'instance',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['INSTANCE_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -16,10 +16,10 @@ export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSc
 implementExecuteFn(
 	InstanceSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if ((input instanceof schema._material))
-			return pass(input)
+		if ((input instanceof schema._material) === false)
+			return fail([reason('INSTANCE_MISMATCH', { input, expected: schema._material })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 
 )

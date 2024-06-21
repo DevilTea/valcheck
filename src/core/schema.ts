@@ -19,20 +19,8 @@ export interface ValidationFailedReason<Issue extends string> {
 	schema: AnyValSchema
 	issue: Issue
 	path: ExecutionPath
-	value: any
+	payload: any
 	reasons?: ValidationFailedReason<any>[] | undefined
-}
-
-export class ExecutionContext {
-	currentPath: ExecutionPath
-
-	constructor() {
-		this.currentPath = []
-	}
-}
-
-function createExecutionContext() {
-	return new ExecutionContext()
 }
 
 export type ValidationResult<Output> = ValidationResultPassed<Output> | ValidationResultFailed
@@ -45,22 +33,6 @@ export class ValidationError extends Error {
 	}
 }
 
-export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
-	{
-		schema: Schema
-		input: InputOf<Schema>
-		context: ExecutionContext
-		pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
-		reason: (issue: IssuesOf<Schema>[number], value: any, reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<IssuesOf<Schema>[number]>
-		fail: (reasons: ValidationFailedReason<IssuesOf<Schema>[number]>[]) => ValidationResultFailed
-	},
-	IssuesOf<Schema> extends []
-		? 'reason' | 'fail'
-		: never
->
-
-type ExecuteFnImpl<Schema extends AnyValSchema> = (payload: ProvidedExecuteFnPayload<Schema>) => ValidationResult<OutputOf<Schema>>
-
 function pass(value: any): ValidationResultPassed<any> {
 	return { type: 'passed', value }
 }
@@ -69,20 +41,20 @@ function reason({
 	context,
 	schema,
 	issue,
-	value,
+	payload,
 	reasons,
 }: {
 	context: ExecutionContext
 	schema: AnyValSchema
 	issue: string
-	value: any
+	payload: any
 	reasons?: ValidationFailedReason<any>[] | undefined
 }): ValidationFailedReason<any> {
 	return {
 		schema,
 		issue,
 		path: [...context.currentPath],
-		value,
+		payload,
 		reasons,
 	}
 }
@@ -94,6 +66,36 @@ function fail(reasons: ValidationFailedReason<any>[]): ValidationResultFailed {
 function shouldNeverBeCalled<T>(): T {
 	throw new Error('This function should never be called.')
 }
+
+export class ExecutionContext {
+	currentPath: ExecutionPath
+	reasons: ValidationFailedReason<any>[]
+
+	constructor() {
+		this.currentPath = []
+		this.reasons = []
+	}
+}
+
+function createExecutionContext() {
+	return new ExecutionContext()
+}
+
+export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
+	{
+		schema: Schema
+		input: InputOf<Schema>
+		context: ExecutionContext
+		pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
+		reason: (issue: IssuesOf<Schema>[number], payload: any, reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<IssuesOf<Schema>[number]>
+		fail: (reasons: ValidationFailedReason<IssuesOf<Schema>[number]>[]) => ValidationResultFailed
+	},
+	IssuesOf<Schema> extends []
+		? 'reason' | 'fail'
+		: never
+>
+
+type ExecuteFnImpl<Schema extends AnyValSchema> = (payload: ProvidedExecuteFnPayload<Schema>) => ValidationResult<OutputOf<Schema>>
 
 abstract class _BaseValSchema<
 	Params extends {
@@ -137,7 +139,7 @@ abstract class _BaseValSchema<
 			material: this._material,
 			pass,
 			reason: (issue: string, value: any, reasons?: ValidationFailedReason<any>[] | undefined) =>
-				reason({ context, schema: this, issue, value, reasons }),
+				reason({ context, schema: this, issue, payload: value, reasons }),
 			fail,
 		}
 		return this._execute(payload)
@@ -222,6 +224,10 @@ export function implementExecuteFn<
 
 export type IssuesOf<Schema> = Schema extends AnyValSchema
 	? Schema['_issues']
+	: 'Not A ValSchema'
+
+export type IssueOf<Schema> = Schema extends AnyValSchema
+	? Schema['_issues'][number]
 	: 'Not A ValSchema'
 
 export type MaterialOf<Schema> = Schema extends AnyValSchema

@@ -6,7 +6,7 @@ type NumberSchemaOutput<Material extends NumberSchemaMaterial> = Material extend
 
 export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'number',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['NUMBER_EXPECTED', 'NUMBER_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -24,18 +24,15 @@ export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMa
 implementExecuteFn(
 	NumberSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if (schema.isUnspecific() && typeof input === 'number')
-			return pass(input)
+		if (schema.isUnspecific() && typeof input !== 'number')
+			return fail([reason('NUMBER_EXPECTED', { input })])
 
 		if (
-			schema.isSpecific() && (
-				input === schema._material
-				|| (Number.isNaN(input) && Number.isNaN(schema._material))
-			)
+			schema.isSpecific() && (input !== schema._material && (Number.isNaN(input) && Number.isNaN(schema._material) === false))
 		)
-			return pass(input)
+			return fail([reason('NUMBER_MISMATCH', { input, expected: schema._material })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 )
 

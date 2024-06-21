@@ -2,7 +2,7 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class NullSchema extends BaseValSchema({
 	Name: 'null',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['NULL_EXPECTED'],
 })<{
 	Input: any
 	Output: null
@@ -12,7 +12,7 @@ implementExecuteFn(
 	NullSchema,
 	({ input, reason, fail, pass }) => {
 		if (input !== null)
-			return fail([reason('UNEXPECTED_INPUT', input)])
+			return fail([reason('NULL_EXPECTED', { input })])
 
 		return pass(input)
 	},

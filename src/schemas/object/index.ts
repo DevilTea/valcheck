@@ -11,7 +11,7 @@ type ObjectSchemaOutput<Material extends ObjectSchemaMaterial> = {
 
 export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'object',
-	Issues: ['UNEXPECTED_INPUT', 'MISSING_OBJECT_KEY', 'UNEXPECTED_OBJECT_VALUE'],
+	Issues: ['OBJECT_EXPECTED', 'OBJECT_KEY_MISSING', 'OBJECT_VALUE_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -22,7 +22,7 @@ implementExecuteFn(
 	ObjectSchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (typeof input !== 'object' || input === null || Array.isArray(input))
-			return fail([reason('UNEXPECTED_INPUT', input)])
+			return fail([reason('OBJECT_EXPECTED', { input })])
 
 		const reasons: any[] = []
 		const material = schema._material
@@ -37,7 +37,7 @@ implementExecuteFn(
 				(key in input) === false
 				&& isOptionalItem(item) === false
 			) {
-				reasons.push(reason('MISSING_OBJECT_KEY', key))
+				reasons.push(reason('OBJECT_KEY_MISSING', { key }))
 				continue
 			}
 
@@ -51,7 +51,7 @@ implementExecuteFn(
 				: item.execute(value, context)
 
 			if (valueResult.type === 'failed')
-				reasons.push(reason('UNEXPECTED_OBJECT_VALUE', value, valueResult.reasons))
+				reasons.push(reason('OBJECT_VALUE_MISMATCH', { value }, valueResult.reasons))
 		}
 		context.currentPath = path
 

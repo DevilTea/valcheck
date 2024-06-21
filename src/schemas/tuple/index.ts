@@ -27,7 +27,7 @@ type TupleSchemaOutput<Material extends TupleSchemaMaterial> = [
 
 export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'tuple',
-	Issues: ['UNEXPECTED_INPUT', 'UNEXPECTED_TUPLE_ITEM'],
+	Issues: ['TUPLE_EXPECTED', 'TUPLE_ITEM_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -38,7 +38,7 @@ implementExecuteFn(
 	TupleSchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))
-			return fail([reason('UNEXPECTED_INPUT', input)])
+			return fail([reason('TUPLE_EXPECTED', { input })])
 
 		const material = schema._material
 		const hasRest = material[1].length > 0
@@ -76,7 +76,7 @@ implementExecuteFn(
 					result = materialItem.execute(inputItem, context)
 
 				if (result.type === 'failed')
-					reasons.push(reason('UNEXPECTED_TUPLE_ITEM', inputItem, result.reasons))
+					reasons.push(reason('TUPLE_ITEM_MISMATCH', { item: inputItem }, result.reasons))
 
 				itemIndex++
 			}

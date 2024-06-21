@@ -6,7 +6,7 @@ type SymbolSchemaOutput<Material extends SymbolSchemaMaterial> = Material extend
 
 export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'symbol',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['SYMBOL_EXPECTED', 'SYMBOL_MISMATCH'],
 })<{
 	Material: Material
 	Input: any
@@ -24,13 +24,13 @@ export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMa
 implementExecuteFn(
 	SymbolSchema,
 	({ schema, input, reason, fail, pass }) => {
-		if (schema.isUnspecific() && typeof input === 'symbol')
-			return pass(input)
+		if (schema.isUnspecific() && typeof input !== 'symbol')
+			return fail([reason('SYMBOL_EXPECTED', { input })])
 
-		if (schema.isSpecific() && input === schema._material)
-			return pass(input)
+		if (schema.isSpecific() && input !== schema._material)
+			return fail([reason('SYMBOL_MISMATCH', { input, expected: schema._material })])
 
-		return fail([reason('UNEXPECTED_INPUT', input)])
+		return pass(input)
 	},
 )
 

@@ -18,7 +18,7 @@ type IntersectionSchemaOutput<Material extends IntersectionSchemaMaterial> = ToI
 
 export class IntersectionSchema<Material extends IntersectionSchemaMaterial = IntersectionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'intersection',
-	Issues: ['UNEXPECTED_INPUT'],
+	Issues: ['BRANCH_FAILED'],
 })<{
 	Material: Material
 	Input: any
@@ -41,7 +41,7 @@ implementExecuteFn(
 		}
 
 		if (failed)
-			return fail([reason('UNEXPECTED_INPUT', input, reasons)])
+			return fail([reason('BRANCH_FAILED', { input }, reasons)])
 
 		return pass(input)
 	},
