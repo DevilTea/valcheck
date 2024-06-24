@@ -1,4 +1,4 @@
-import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementValidateFn } from '../../core/schema'
 import { type CreateTemplateLiteralSchema, type RawTemplateLiteralMaterial, type TemplateLiteralMaterial, type TemplatePartialsToOutput, createTemplateLiteral } from './templateLiteral'
 
 type StringSchemaMaterial = null | string | TemplateLiteralMaterial
@@ -36,7 +36,7 @@ export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMa
 	}
 }
 
-implementExecuteFn(
+implementValidateFn(
 	StringSchema,
 	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input !== 'string')

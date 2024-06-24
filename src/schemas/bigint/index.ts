@@ -1,4 +1,4 @@
-import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementValidateFn } from '../../core/schema'
 
 type BigintSchemaMaterial = null | bigint
 
@@ -24,7 +24,7 @@ export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMa
 	}
 }
 
-implementExecuteFn(
+implementValidateFn(
 	BigintSchema,
 	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input !== 'bigint')

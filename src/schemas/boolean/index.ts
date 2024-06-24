@@ -1,4 +1,4 @@
-import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementValidateFn } from '../../core/schema'
 
 type BooleanSchemaMaterial = null | boolean
 
@@ -24,7 +24,7 @@ export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchem
 	}
 }
 
-implementExecuteFn(
+implementValidateFn(
 	BooleanSchema,
 	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input !== 'boolean')

@@ -12,13 +12,13 @@ export interface ValidationResultFailed extends BaseValidationResult {
 	reasons: ValidationFailedReason<any>[]
 }
 
-export type ExecutionPath = (string | number | symbol)[]
+export type ValidationPath = (string | number | symbol)[]
 export type ValSchemaPath = (string | number | symbol)[]
 
 export interface ValidationFailedReason<Issue extends string> {
 	schema: AnyValSchema
 	issue: Issue
-	path: ExecutionPath
+	path: ValidationPath
 	payload: any
 	reasons?: ValidationFailedReason<any>[] | undefined
 }
@@ -44,7 +44,7 @@ function reason({
 	payload,
 	reasons,
 }: {
-	context: ExecutionContext
+	context: ValidationContext
 	schema: AnyValSchema
 	issue: string
 	payload: any
@@ -67,8 +67,8 @@ function shouldNeverBeCalled<T>(): T {
 	throw new Error('This function should never be called.')
 }
 
-export class ExecutionContext {
-	currentPath: ExecutionPath
+export class ValidationContext {
+	currentPath: ValidationPath
 	reasons: ValidationFailedReason<any>[]
 
 	constructor() {
@@ -78,14 +78,14 @@ export class ExecutionContext {
 }
 
 function createExecutionContext() {
-	return new ExecutionContext()
+	return new ValidationContext()
 }
 
-export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
+export type ProvidedValidateFnPayload<Schema extends AnyValSchema> = Omit<
 	{
 		schema: Schema
 		input: InputOf<Schema>
-		context: ExecutionContext
+		context: ValidationContext
 		pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
 		reason: <Issues extends IssuesOf<Schema>, I extends keyof Issues>(issue: I, payload: Issues[I], reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<(keyof Issues) & string>
 		fail: (reasons: ValidationFailedReason<IssuesOf<Schema>[number]>[]) => ValidationResultFailed
@@ -95,7 +95,7 @@ export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
 		: never
 >
 
-type ExecuteFnImpl<Schema extends AnyValSchema> = (payload: ProvidedExecuteFnPayload<Schema>) => ValidationResult<OutputOf<Schema>>
+type ValidateFnImpl<Schema extends AnyValSchema> = (payload: ProvidedValidateFnPayload<Schema>) => ValidationResult<OutputOf<Schema>>
 
 abstract class _BaseValSchema<
 	Params extends {
@@ -127,11 +127,11 @@ abstract class _BaseValSchema<
 		this._material = material
 	}
 
-	_execute(_payload: ProvidedExecuteFnPayload<any>): ValidationResult<OutputOf<any>> {
+	_validate(_payload: ProvidedValidateFnPayload<any>): ValidationResult<OutputOf<any>> {
 		throw new Error('Not implemented')
 	}
 
-	execute(input: Input, context: ExecutionContext = createExecutionContext()): ValidationResult<Output> {
+	execute(input: Input, context: ValidationContext = createExecutionContext()): ValidationResult<Output> {
 		const payload = {
 			schema: this,
 			input,
@@ -142,7 +142,7 @@ abstract class _BaseValSchema<
 				reason({ context, schema: this, issue, payload, reasons }),
 			fail,
 		}
-		return this._execute(payload)
+		return this._validate(payload)
 	}
 
 	parse(input: Input): Output {
@@ -216,12 +216,12 @@ export type AnyValSchemaThatOutputs<Output> = _BaseValSchema<{ Name: any, Issues
 
 export type AnyValSchema = AnyValSchemaThatOutputs<any>
 
-export function implementExecuteFn<
+export function implementValidateFn<
 	SchemaClass extends AnyValSchemaClass,
 	Schema extends InstanceType<SchemaClass>,
-	ExecuteFn extends ExecuteFnImpl<Schema>,
+	ExecuteFn extends ValidateFnImpl<Schema>,
 >(schemaClass: SchemaClass, executeFn: ExecuteFn) {
-	schemaClass.prototype._execute = executeFn
+	schemaClass.prototype._validate = executeFn
 }
 
 export type IssuesOf<Schema> = Schema extends AnyValSchema

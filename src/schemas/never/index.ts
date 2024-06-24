@@ -1,4 +1,4 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchema, implementValidateFn } from '../../core/schema'
 
 export class NeverSchema extends BaseValSchema({
 	Name: 'never',
@@ -10,7 +10,7 @@ export class NeverSchema extends BaseValSchema({
 	Output: never
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	NeverSchema,
 	({ input, reason, fail }) => {
 		return fail([reason('NEVER_EXPECTED', input)])

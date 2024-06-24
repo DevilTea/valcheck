@@ -1,4 +1,4 @@
-import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementValidateFn } from '../../core/schema'
 
 type InstanceSchemaMaterial = abstract new (...args: any) => any
 
@@ -15,7 +15,7 @@ export class InstanceSchema<Material extends InstanceSchemaMaterial = InstanceSc
 	Output: InstanceSchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	InstanceSchema,
 	({ schema, input, reason, fail, pass }) => {
 		if ((input instanceof schema._material) === false)

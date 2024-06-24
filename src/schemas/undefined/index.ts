@@ -1,4 +1,4 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchema, implementValidateFn } from '../../core/schema'
 
 export class UndefinedSchema extends BaseValSchema({
 	Name: 'undefined',
@@ -10,7 +10,7 @@ export class UndefinedSchema extends BaseValSchema({
 	Output: undefined
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	UndefinedSchema,
 	({ input, reason, fail, pass }) => {
 		if (typeof input !== 'undefined')

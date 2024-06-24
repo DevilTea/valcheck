@@ -1,4 +1,4 @@
-import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, type AnyValSchemaThatOutputs, BaseValSchemaWithMaterial, type OutputOf, implementValidateFn } from '../../core/schema'
 import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, type RestItem as _RestItem, isOptionalItem, isPrimitive, isRestItem, toPrimitiveSchema } from '../../core/utils'
 
 type Item = AnyValSchema | OptionalItem<AnyValSchema>
@@ -37,7 +37,7 @@ export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMater
 	Output: TupleSchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	TupleSchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))

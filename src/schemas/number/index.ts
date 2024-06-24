@@ -1,4 +1,4 @@
-import { BaseValSchemaWithMaterial, implementExecuteFn } from '../../core/schema'
+import { BaseValSchemaWithMaterial, implementValidateFn } from '../../core/schema'
 
 type NumberSchemaMaterial = null | number
 
@@ -24,7 +24,7 @@ export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMa
 	}
 }
 
-implementExecuteFn(
+implementValidateFn(
 	NumberSchema,
 	({ schema, input, reason, fail, pass }) => {
 		if (schema.isUnspecific() && typeof input !== 'number')

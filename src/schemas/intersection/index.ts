@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementValidateFn } from '../../core/schema'
 import { type NeverSchema, never } from '../never'
 import { type OptimizeMaterial, type RawIntersectionSchemaMaterial, optimizeMaterial } from './optimizeMaterial'
 
@@ -27,7 +27,7 @@ export class IntersectionSchema<Material extends IntersectionSchemaMaterial = In
 	Output: IntersectionSchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	IntersectionSchema,
 	({ schema, input, reason, fail, pass }) => {
 		let failed = false

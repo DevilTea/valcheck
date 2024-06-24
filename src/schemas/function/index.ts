@@ -1,4 +1,4 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchema, implementValidateFn } from '../../core/schema'
 
 export class FunctionSchema<Fn extends Function = Function> extends BaseValSchema({
 	Name: 'function',
@@ -10,7 +10,7 @@ export class FunctionSchema<Fn extends Function = Function> extends BaseValSchem
 	Output: Fn
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	FunctionSchema,
 	({ input, reason, fail, pass }) => {
 		if (typeof input !== 'function')

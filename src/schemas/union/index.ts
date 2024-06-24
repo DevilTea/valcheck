@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementValidateFn } from '../../core/schema'
 import type { Primitive } from '../../core/utils'
 import { type NeverSchema, never } from '../never'
 import { type OptimizeMaterial, optimizeMaterial } from './optimizeMaterial'
@@ -23,7 +23,7 @@ export class UnionSchema<Material extends UnionSchemaMaterial = UnionSchemaMater
 	Output: UnionSchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	UnionSchema,
 	({ schema, input, reason, fail, pass }) => {
 		let failed = true

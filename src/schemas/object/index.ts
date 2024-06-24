@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementValidateFn } from '../../core/schema'
 import { type As, type OptionalItem, type Primitive, type PrimitiveValueToSchema, isOptionalItem, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 
 type ObjectSchemaMaterial = Record<string | symbol, AnyValSchema | OptionalItem<AnyValSchema>>
@@ -22,7 +22,7 @@ export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMa
 	Output: ObjectSchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	ObjectSchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (typeof input !== 'object' || input === null || Array.isArray(input))

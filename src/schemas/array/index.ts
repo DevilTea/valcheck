@@ -1,4 +1,4 @@
-import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementExecuteFn } from '../../core/schema'
+import { type AnyValSchema, BaseValSchemaWithMaterial, type OutputOf, implementValidateFn } from '../../core/schema'
 import { type Primitive, type PrimitiveValueToSchema, isPrimitive, toPrimitiveSchema } from '../../core/utils'
 import { type AnySchema, any } from '../any'
 
@@ -18,7 +18,7 @@ export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSc
 	Output: ArraySchemaOutput<Material>
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	ArraySchema,
 	({ schema, input, context, reason, fail, pass }) => {
 		if (!Array.isArray(input))

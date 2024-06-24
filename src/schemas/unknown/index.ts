@@ -1,4 +1,4 @@
-import { BaseValSchema, implementExecuteFn } from '../../core/schema'
+import { BaseValSchema, implementValidateFn } from '../../core/schema'
 
 export class UnknownSchema extends BaseValSchema({
 	Name: 'unknown',
@@ -7,7 +7,7 @@ export class UnknownSchema extends BaseValSchema({
 	Output: unknown
 }> {}
 
-implementExecuteFn(
+implementValidateFn(
 	UnknownSchema,
 	({ input, pass }) => pass(input),
 )
