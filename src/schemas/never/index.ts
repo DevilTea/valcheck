@@ -2,8 +2,10 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class NeverSchema extends BaseValSchema({
 	Name: 'never',
-	Issues: ['NEVER_EXPECTED'],
 })<{
+	Issues: {
+		NEVER_EXPECTED: { input: any }
+	}
 	Input: any
 	Output: never
 }> {}

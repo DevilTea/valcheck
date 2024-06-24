@@ -27,8 +27,11 @@ type TupleSchemaOutput<Material extends TupleSchemaMaterial> = [
 
 export class TupleSchema<Material extends TupleSchemaMaterial = TupleSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'tuple',
-	Issues: ['TUPLE_EXPECTED', 'TUPLE_ITEM_MISMATCH'],
 })<{
+	Issues: {
+		TUPLE_EXPECTED: { input: any }
+		TUPLE_ITEM_MISMATCH: { item: any }
+	}
 	Material: Material
 	Input: any
 	Output: TupleSchemaOutput<Material>

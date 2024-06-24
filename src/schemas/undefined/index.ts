@@ -2,8 +2,10 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class UndefinedSchema extends BaseValSchema({
 	Name: 'undefined',
-	Issues: ['UNDEFINED_EXPECTED'],
 })<{
+	Issues: {
+		UNDEFINED_EXPECTED: { input: any }
+	}
 	Input: any
 	Output: undefined
 }> {}

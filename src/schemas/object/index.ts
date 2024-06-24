@@ -11,8 +11,12 @@ type ObjectSchemaOutput<Material extends ObjectSchemaMaterial> = {
 
 export class ObjectSchema<Material extends ObjectSchemaMaterial = ObjectSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'object',
-	Issues: ['OBJECT_EXPECTED', 'OBJECT_KEY_MISSING', 'OBJECT_VALUE_MISMATCH'],
 })<{
+	Issues: {
+		OBJECT_EXPECTED: { input: any }
+		OBJECT_KEY_MISSING: { key: string | symbol }
+		OBJECT_VALUE_MISMATCH: { value: any }
+	}
 	Material: Material
 	Input: any
 	Output: ObjectSchemaOutput<Material>

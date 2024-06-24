@@ -87,10 +87,10 @@ export type ProvidedExecuteFnPayload<Schema extends AnyValSchema> = Omit<
 		input: InputOf<Schema>
 		context: ExecutionContext
 		pass: (input: InputOf<Schema>) => ValidationResultPassed<OutputOf<Schema>>
-		reason: (issue: IssuesOf<Schema>[number], payload: any, reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<IssuesOf<Schema>[number]>
+		reason: <Issues extends IssuesOf<Schema>, I extends keyof Issues>(issue: I, payload: Issues[I], reasons?: ValidationFailedReason<any>[]) => ValidationFailedReason<(keyof Issues) & string>
 		fail: (reasons: ValidationFailedReason<IssuesOf<Schema>[number]>[]) => ValidationResultFailed
 	},
-	IssuesOf<Schema> extends []
+	[IssuesOf<Schema>] extends [never]
 		? 'reason' | 'fail'
 		: never
 >
@@ -100,25 +100,25 @@ type ExecuteFnImpl<Schema extends AnyValSchema> = (payload: ProvidedExecuteFnPay
 abstract class _BaseValSchema<
 	Params extends {
 		Name: string
-		Issues: string[]
+		Issues: Record<string, any>
 		Material: any
 		Input: any
 		Output: any
 	},
 	Name extends string = Params['Name'],
-	Issues extends string[] = Params['Issues'],
+	Issues extends Record<string, any> = Params['Issues'],
 	Material = Params['Material'],
 	Input = Params['Input'],
 	Output = Params['Output'],
 > {
 	abstract _name: Name
-	abstract _issues: Issues | []
 	_material: Material
 
 	/**
 	 * Only used for type inference
 	 */
 	_types = shouldNeverBeCalled<{
+		_issues: Issues
 		_input: Input
 		_output: Output
 	}>
@@ -138,8 +138,8 @@ abstract class _BaseValSchema<
 			context,
 			material: this._material,
 			pass,
-			reason: (issue: string, value: any, reasons?: ValidationFailedReason<any>[] | undefined) =>
-				reason({ context, schema: this, issue, payload: value, reasons }),
+			reason: (issue: any, payload: any, reasons?: ValidationFailedReason<any>[] | undefined) =>
+				reason({ context, schema: this, issue, payload, reasons }),
 			fail,
 		}
 		return this._execute(payload)
@@ -156,12 +156,14 @@ abstract class _BaseValSchema<
 	}
 }
 
-export function BaseValSchema<Name extends string, Issues extends string[] = []>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
+export function BaseValSchema<Name extends string>({ Name: name }: { Name: Name }) {
 	abstract class BaseValSchema<
 		Params extends {
+			Issues?: Record<string, any>
 			Input: any
 			Output: any
 		},
+		Issues extends Record<string, any> = Params['Issues'] extends Record<string, any> ? Params['Issues'] : never,
 		Input = Params['Input'],
 		Output = Params['Output'],
 	> extends _BaseValSchema<{
@@ -172,7 +174,6 @@ export function BaseValSchema<Name extends string, Issues extends string[] = []>
 		Output: Output
 	}> {
 		_name = name
-		_issues = issues || []
 
 		constructor() {
 			super(null)
@@ -182,13 +183,15 @@ export function BaseValSchema<Name extends string, Issues extends string[] = []>
 	return BaseValSchema
 }
 
-export function BaseValSchemaWithMaterial<Name extends string, Issues extends string[]>({ Name: name, Issues: issues }: { Name: Name, Issues?: [...Issues] }) {
+export function BaseValSchemaWithMaterial<Name extends string>({ Name: name }: { Name: Name }) {
 	abstract class BaseValSchema<
 		Params extends {
+			Issues?: Record<string, any>
 			Material: any
 			Input: any
 			Output: any
 		},
+		Issues extends Record<string, any> = Params['Issues'] extends Record<string, any> ? Params['Issues'] : never,
 		Material = Params['Material'],
 		Input = Params['Input'],
 		Output = Params['Output'],
@@ -200,7 +203,6 @@ export function BaseValSchemaWithMaterial<Name extends string, Issues extends st
 		Output: Output
 	}> {
 		_name = name
-		_issues = issues || []
 	}
 
 	return BaseValSchema
@@ -223,11 +225,7 @@ export function implementExecuteFn<
 }
 
 export type IssuesOf<Schema> = Schema extends AnyValSchema
-	? Schema['_issues']
-	: 'Not A ValSchema'
-
-export type IssueOf<Schema> = Schema extends AnyValSchema
-	? Schema['_issues'][number]
+	? ReturnType<Schema['_types']>['_issues']
 	: 'Not A ValSchema'
 
 export type MaterialOf<Schema> = Schema extends AnyValSchema

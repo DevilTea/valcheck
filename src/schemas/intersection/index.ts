@@ -18,8 +18,10 @@ type IntersectionSchemaOutput<Material extends IntersectionSchemaMaterial> = ToI
 
 export class IntersectionSchema<Material extends IntersectionSchemaMaterial = IntersectionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'intersection',
-	Issues: ['BRANCH_FAILED'],
 })<{
+	Issues: {
+		BRANCH_FAILED: { input: any }
+	}
 	Material: Material
 	Input: any
 	Output: IntersectionSchemaOutput<Material>

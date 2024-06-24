@@ -2,8 +2,10 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class NullSchema extends BaseValSchema({
 	Name: 'null',
-	Issues: ['NULL_EXPECTED'],
 })<{
+	Issues: {
+		NULL_EXPECTED: { input: any }
+	}
 	Input: any
 	Output: null
 }> {}

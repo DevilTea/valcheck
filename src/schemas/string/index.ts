@@ -12,8 +12,13 @@ type StringSchemaOutput<Material extends StringSchemaMaterial> = Material extend
 
 export class StringSchema<Material extends StringSchemaMaterial = StringSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'string',
-	Issues: ['STRING_EXPECTED', 'STRING_MISMATCH'],
 })<{
+	Issues: {
+		STRING_EXPECTED: { input: any }
+		STRING_MISMATCH: Material extends TemplateLiteralMaterial
+			? { input: any, expected: RegExp }
+			: { input: any, expected: string }
+	}
 	Material: Material
 	Input: any
 	Output: StringSchemaOutput<Material>

@@ -6,8 +6,11 @@ type BooleanSchemaOutput<Material extends BooleanSchemaMaterial> = Material exte
 
 export class BooleanSchema<Material extends BooleanSchemaMaterial = BooleanSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'boolean',
-	Issues: ['BOOLEAN_EXPECTED', 'BOOLEAN_MISMATCH'],
 })<{
+	Issues: {
+		BOOLEAN_EXPECTED: { input: any }
+		BOOLEAN_MISMATCH: { input: any, expected: boolean }
+	}
 	Material: Material
 	Input: any
 	Output: BooleanSchemaOutput<Material>

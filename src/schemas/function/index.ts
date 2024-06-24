@@ -2,8 +2,10 @@ import { BaseValSchema, implementExecuteFn } from '../../core/schema'
 
 export class FunctionSchema<Fn extends Function = Function> extends BaseValSchema({
 	Name: 'function',
-	Issues: ['FUNCTION_EXPECTED'],
 })<{
+	Issues: {
+		FUNCTION_EXPECTED: { input: any }
+	}
 	Input: any
 	Output: Fn
 }> {}

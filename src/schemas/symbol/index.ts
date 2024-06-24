@@ -6,8 +6,11 @@ type SymbolSchemaOutput<Material extends SymbolSchemaMaterial> = Material extend
 
 export class SymbolSchema<Material extends SymbolSchemaMaterial = SymbolSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'symbol',
-	Issues: ['SYMBOL_EXPECTED', 'SYMBOL_MISMATCH'],
 })<{
+	Issues: {
+		SYMBOL_EXPECTED: { input: any }
+		SYMBOL_MISMATCH: { input: any, expected: symbol }
+	}
 	Material: Material
 	Input: any
 	Output: SymbolSchemaOutput<Material>

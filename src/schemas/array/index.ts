@@ -8,8 +8,11 @@ type ArraySchemaOutput<Material extends ArraySchemaMaterial> = OutputOf<Material
 
 export class ArraySchema<Material extends ArraySchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'array',
-	Issues: ['ARRAY_EXPECTED', 'ARRAY_ITEM_MISMATCH'],
 })<{
+	Issues: {
+		ARRAY_EXPECTED: { input: any }
+		ARRAY_ITEM_MISMATCH: { item: any }
+	}
 	Material: Material
 	Input: any
 	Output: ArraySchemaOutput<Material>

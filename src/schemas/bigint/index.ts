@@ -6,8 +6,11 @@ type BigintSchemaOutput<Material extends BigintSchemaMaterial> = Material extend
 
 export class BigintSchema<Material extends BigintSchemaMaterial = BigintSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'bigint',
-	Issues: ['BIGINT_EXPECTED', 'BIGINT_MISMATCH'],
 })<{
+	Issues: {
+		BIGINT_EXPECTED: { input: any }
+		BIGINT_MISMATCH: { input: any, expected: bigint }
+	}
 	Material: Material
 	Input: any
 	Output: BigintSchemaOutput<Material>

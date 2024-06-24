@@ -31,8 +31,13 @@ function collectRequiredKeys(keySchema: RecordSchemaMaterialOfKey) {
 
 export class RecordSchema<Material extends RecordSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'record',
-	Issues: ['RECORD_EXPECTED', 'RECORD_KEY_MISMATCH', 'RECORD_VALUE_MISMATCH', 'RECORD_KEYS_MISSING'],
 })<{
+	Issues: {
+		RECORD_EXPECTED: { input: any }
+		RECORD_KEY_MISMATCH: { key: any }
+		RECORD_VALUE_MISMATCH: { value: any }
+		RECORD_KEYS_MISSING: { keys: (string | symbol)[] }
+	}
 	Material: Material
 	Input: any
 	Output: RecordSchemaOutput<Material>

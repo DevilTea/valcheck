@@ -14,8 +14,10 @@ type UnionSchemaOutput<Material extends UnionSchemaMaterial> = Material[number] 
 
 export class UnionSchema<Material extends UnionSchemaMaterial = UnionSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'union',
-	Issues: ['BRANCH_FAILED'],
 })<{
+	Issues: {
+		BRANCH_FAILED: { input: any }
+	}
 	Material: Material
 	Input: any
 	Output: UnionSchemaOutput<Material>

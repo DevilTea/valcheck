@@ -6,8 +6,11 @@ type NumberSchemaOutput<Material extends NumberSchemaMaterial> = Material extend
 
 export class NumberSchema<Material extends NumberSchemaMaterial = NumberSchemaMaterial> extends BaseValSchemaWithMaterial({
 	Name: 'number',
-	Issues: ['NUMBER_EXPECTED', 'NUMBER_MISMATCH'],
 })<{
+	Issues: {
+		NUMBER_EXPECTED: { input: any }
+		NUMBER_MISMATCH: { input: any, expected: number }
+	}
 	Material: Material
 	Input: any
 	Output: NumberSchemaOutput<Material>
